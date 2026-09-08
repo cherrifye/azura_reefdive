@@ -1,20 +1,15 @@
 <?php
-/**
- * Database connection — Azura Reef Dive
- * Every page that needs the database does: require 'db.php';
- * then uses the $conn variable.
- */
 
-$db_host = 'localhost';
-$db_user = 'root';   // XAMPP default username
-$db_pass = '';       // XAMPP default password is blank
-$db_name = 'azura_reefdive';
+$host = "localhost";
+$user = "root";
+$password = "";
+$database = "azura_reefdive";
 
-$conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+$conn = new mysqli($host, $user, $password, $database);
 
 if ($conn->connect_error) {
-    die('Database connection failed: ' . $conn->connect_error);
+    die("Database connection failed: " . $conn->connect_error);
 }
 
-// Make sure special characters (accents, emojis, etc.) save correctly
-$conn->set_charset('utf8mb4');
+$conn->set_charset("utf8mb4");
+?>

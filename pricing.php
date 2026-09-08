@@ -1,62 +1,478 @@
 <?php
-require 'db.php';
+session_start();
+
+/*
+    AZURA REEF DIVE
+    Premium Gear / Pricing Page
+*/
 
 $gear = [
-    ['item' => 'Full Scuba Set (BCD, regulator, wetsuit, fins, mask)', 'price' => '₱800 / day'],
-    ['item' => 'Dive Computer',                                       'price' => '₱300 / day'],
-    ['item' => 'Underwater Camera',                                   'price' => '₱500 / day'],
-    ['item' => 'Snorkel Set (mask, snorkel, fins)',                   'price' => '₱250 / day'],
-    ['item' => 'Wetsuit Only',                                        'price' => '₱200 / day'],
+    [
+        'name' => 'Complete Scuba Set',
+        'description' => 'A complete rental package for divers who need all essential scuba equipment.',
+        'includes' => 'BCD, regulator, wetsuit, mask, fins, weights, tank',
+        'price' => 1200,
+        'image' => 'images/scubawoman.jpg'
+    ],
+    [
+        'name' => 'BCD Rental',
+        'description' => 'Comfortable and well-maintained buoyancy control device for your dive.',
+        'includes' => 'BCD only',
+        'price' => 350,
+        'image' => 'images/diverfish.jpg'
+    ],
+    [
+        'name' => 'Regulator Rental',
+        'description' => 'Reliable regulator set checked and maintained for safe diving.',
+        'includes' => 'Primary regulator, alternate air source, pressure gauge',
+        'price' => 300,
+        'image' => 'images/waterdive.jpg'
+    ],
+    [
+        'name' => 'Wetsuit Rental',
+        'description' => 'Comfortable wetsuit suitable for warm tropical waters around Siquijor.',
+        'includes' => 'Wetsuit only',
+        'price' => 250,
+        'image' => 'images/corals.jpg'
+    ],
+    [
+        'name' => 'Mask & Fins Set',
+        'description' => 'Perfect for divers or snorkelers who only need basic water gear.',
+        'includes' => 'Mask and fins',
+        'price' => 200,
+        'image' => 'images/watercorals.jpg'
+    ],
+    [
+        'name' => 'Tank Rental',
+        'description' => 'Standard scuba tank prepared and inspected by our dive team.',
+        'includes' => 'One scuba tank',
+        'price' => 400,
+        'image' => 'images/daybbb .jpg'
+    ]
 ];
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Premium Gear Pricing — Azura Reef Dive</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<style>
-  .page-wrap{max-width:760px;margin:0 auto;padding:96px 24px;}
-  .page-wrap h1{font-size:2.1rem;color:var(--teal-900);margin-bottom:12px;}
-  .page-wrap > p{color:var(--muted);margin-bottom:36px;max-width:560px;}
-  .back-link{display:inline-block;margin-bottom:24px;font-size:0.9rem;color:var(--teal-500);font-weight:600;}
-  table{width:100%;border-collapse:collapse;margin-bottom:36px;}
-  th, td{text-align:left;padding:14px 16px;border-bottom:1px solid var(--border);font-size:0.95rem;}
-  th{color:var(--teal-900);font-weight:700;background:var(--mint-50);}
-  td{color:var(--ink);}
-  td:last-child{font-weight:600;color:var(--teal-700);}
-  .note{color:var(--muted);font-size:0.88rem;margin-bottom:36px;}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Premium Gear | Azura Reef Dive</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="style.css">
+
+    <style>
+
+        .page-hero {
+            background: var(--teal-900);
+            color: white;
+            text-align: center;
+            padding: 85px 24px;
+        }
+
+        .page-hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            margin-bottom: 16px;
+        }
+
+        .page-hero p {
+            max-width: 650px;
+            margin: auto;
+            color: var(--muted-light);
+            font-size: 1.05rem;
+        }
+
+        .gear-section {
+            background: var(--mint-50);
+            padding: 85px 24px;
+        }
+
+        .gear-heading {
+            text-align: center;
+            max-width: 650px;
+            margin: 0 auto 50px;
+        }
+
+        .gear-heading h2 {
+            color: var(--teal-900);
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .gear-heading p {
+            color: var(--muted);
+        }
+
+        .gear-grid {
+            max-width: 1140px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 28px;
+        }
+
+        .gear-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            transition: transform .2s ease;
+        }
+
+        .gear-card:hover {
+            transform: translateY(-6px);
+        }
+
+        .gear-image {
+            height: 210px;
+            overflow: hidden;
+        }
+
+        .gear-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform .35s ease;
+        }
+
+        .gear-card:hover .gear-image img {
+            transform: scale(1.05);
+        }
+
+        .gear-content {
+            padding: 26px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .gear-content h3 {
+            color: var(--teal-900);
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .gear-description {
+            color: var(--muted);
+            font-size: .93rem;
+            margin-bottom: 18px;
+        }
+
+        .gear-includes {
+            background: var(--mint-50);
+            border-radius: var(--radius-sm);
+            padding: 14px;
+            margin-bottom: 22px;
+        }
+
+        .gear-includes span {
+            display: block;
+            font-size: .75rem;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 4px;
+            letter-spacing: .05em;
+        }
+
+        .gear-includes strong {
+            color: var(--teal-900);
+            font-size: .9rem;
+        }
+
+        .gear-bottom {
+            margin-top: auto;
+        }
+
+        .gear-price {
+            margin-bottom: 18px;
+        }
+
+        .gear-price strong {
+            font-family: 'Fraunces', serif;
+            color: var(--teal-900);
+            font-size: 1.7rem;
+        }
+
+        .gear-price span {
+            color: var(--muted);
+            font-size: .85rem;
+        }
+
+        .gear-bottom .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .rental-note {
+            background: white;
+            padding: 80px 24px;
+        }
+
+        .note-box {
+            max-width: 850px;
+            margin: auto;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 42px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .note-box h2 {
+            color: var(--teal-900);
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+
+        .note-box p {
+            color: var(--muted);
+            max-width: 650px;
+            margin: 0 auto 24px;
+        }
+
+        .back-home {
+            margin-top: 20px;
+        }
+
+        .back-home a {
+            color: var(--muted);
+            font-size: .9rem;
+        }
+
+        .back-home a:hover {
+            color: var(--teal-500);
+        }
+
+        @media (max-width: 900px) {
+            .gear-grid {
+                grid-template-columns: 1fr;
+                max-width: 600px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .page-hero {
+                padding: 65px 20px;
+            }
+
+            .gear-section,
+            .rental-note {
+                padding: 60px 20px;
+            }
+
+            .note-box {
+                padding: 30px 20px;
+            }
+        }
+
+    </style>
+
 </head>
+
 <body>
 
-<div class="page-wrap">
-  <a href="index.php" class="back-link">&larr; Back to home</a>
-  <h1>Premium Gear — Pricing</h1>
-  <p>All our gear is well-maintained and checked before every rental. Prices below are per day; multi-day rentals get a discount.</p>
+<header>
 
-  <table>
-    <thead>
-      <tr><th>Item</th><th>Price</th></tr>
-    </thead>
-    <tbody>
-      <?php foreach ($gear as $row): ?>
-        <tr>
-          <td><?= htmlspecialchars($row['item']) ?></td>
-          <td><?= htmlspecialchars($row['price']) ?></td>
-        </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+    <div class="nav-wrap">
 
-  <p class="note">Gear is also included free with any guided dive or course booking — this pricing is only for standalone rentals.</p>
+        <a href="index.php" class="brand">
 
-  <a href="booking.php?service=<?= urlencode('Premium Gear') ?>" class="btn btn-primary">Reserve Gear</a>
-</div>
+            <span class="brand-icon">
+                <img src="images/daybbb .png" alt="Azura Reef logo">
+            </span>
+
+            <span class="brand-name">
+                Azura Reef
+            </span>
+
+        </a>
+
+        <nav class="nav-links">
+
+            <a href="index.php#services">
+                Services
+            </a>
+
+            <a href="index.php#lessons">
+                Lessons
+            </a>
+
+            <a href="index.php#why-us">
+                Why Us
+            </a>
+
+            <a href="index.php#about">
+                About
+            </a>
+
+        </nav>
+
+        <div class="nav-cta">
+
+            <a href="index.php" class="nav-logout">
+                Home
+            </a>
+
+            <a href="booking.php" class="btn btn-dark">
+                Book a Dive
+            </a>
+
+        </div>
+
+    </div>
+
+</header>
+
+
+<section class="page-hero">
+
+    <h1>Premium Gear</h1>
+
+    <p>
+        Dive with confidence using clean, reliable, and well-maintained
+        equipment from Azura Reef Dive.
+    </p>
+
+</section>
+
+
+<section class="gear-section">
+
+    <div class="gear-heading">
+
+        <span class="eyebrow-line">
+            Gear Rental
+        </span>
+
+        <h2>Choose Your Equipment</h2>
+
+        <p>
+            Rent individual equipment or choose a complete scuba set
+            for your underwater adventure.
+        </p>
+
+    </div>
+
+
+    <div class="gear-grid">
+
+        <?php foreach ($gear as $item): ?>
+
+            <div class="gear-card">
+
+                <div class="gear-image">
+
+                    <img
+                        src="<?= htmlspecialchars($item['image']) ?>"
+                        alt="<?= htmlspecialchars($item['name']) ?>"
+                    >
+
+                </div>
+
+
+                <div class="gear-content">
+
+                    <h3>
+                        <?= htmlspecialchars($item['name']) ?>
+                    </h3>
+
+                    <p class="gear-description">
+                        <?= htmlspecialchars($item['description']) ?>
+                    </p>
+
+
+                    <div class="gear-includes">
+
+                        <span>
+                            Includes
+                        </span>
+
+                        <strong>
+                            <?= htmlspecialchars($item['includes']) ?>
+                        </strong>
+
+                    </div>
+
+
+                    <div class="gear-bottom">
+
+                        <div class="gear-price">
+
+                            <strong>
+                                ₱<?= number_format($item['price']) ?>
+                            </strong>
+
+                            <span>
+                                / day
+                            </span>
+
+                        </div>
+
+
+                        <a
+                            href="booking.php?type=gear&gear=<?= urlencode($item['name']) ?>"
+                            class="btn btn-primary"
+                        >
+                            Rent This Gear
+                        </a>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        <?php endforeach; ?>
+
+    </div>
+
+</section>
+
+
+<section class="rental-note">
+
+    <div class="note-box">
+
+        <span class="eyebrow-line">
+            Safe & Reliable
+        </span>
+
+        <h2>Equipment You Can Trust</h2>
+
+        <p>
+            Our rental equipment is inspected and maintained regularly.
+            If you are unsure which gear you need, our dive team can
+            help you choose the right equipment for your experience.
+        </p>
+
+        <a href="booking.php?type=gear" class="btn btn-dark">
+            Reserve Equipment
+        </a>
+
+        <div class="back-home">
+
+            <a href="index.php">
+                ← Back to Home
+            </a>
+
+        </div>
+
+    </div>
+
+</section>
 
 </body>
 </html>

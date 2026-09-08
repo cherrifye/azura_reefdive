@@ -1,202 +1,851 @@
 <?php
-require 'db.php';
+session_start();
 
-$success = false;
-$errors  = [];
+$type   = $_GET['type'] ?? '';
+$dive   = $_GET['dive'] ?? '';
+$tour   = $_GET['tour'] ?? '';
+$gear   = $_GET['gear'] ?? '';
+$course = $_GET['course'] ?? '';
 
-// If someone arrives via a link like booking.php?service=Snorkeling+Tours,
-// pre-select that service in the dropdown. A resubmitted form (POST) wins over the URL.
-$preselected_service = $_POST['service'] ?? ($_GET['service'] ?? '');
+$service_name = '';
 
-$services_list = [
-    'Guided Fun Dives',
-    'Snorkeling Tours',
-    'Premium Gear',
-    'Discover Scuba Diving',
-    'Open Water Certification',
-    'Advanced Courses',
-];
-
-// Handle form submission
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-
-    $full_name      = trim($_POST['full_name'] ?? '');
-    $email          = trim($_POST['email'] ?? '');
-    $phone          = trim($_POST['phone'] ?? '');
-    $service        = trim($_POST['service'] ?? '');
-    $booking_date   = trim($_POST['booking_date'] ?? '');
-    $payment_method = trim($_POST['payment_method'] ?? '');
-
-    // Basic validation
-    if ($full_name === '') $errors[] = 'Full name is required.';
-    if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email is required.';
-    if (!in_array($service, $services_list, true)) $errors[] = 'Please choose a valid service.';
-    if ($booking_date === '') $errors[] = 'Please choose a date.';
-    if (!in_array($payment_method, ['cash', 'online'], true)) $errors[] = 'Please choose a payment method.';
-
-    if (empty($errors)) {
-        $stmt = $conn->prepare(
-            'INSERT INTO bookings (full_name, email, phone, service, booking_date, payment_method, payment_status)
-             VALUES (?, ?, ?, ?, ?, ?, ?)'
-        );
-
-        $payment_status = 'pending'; // both cash and online start as pending until confirmed
-
-        $stmt->bind_param(
-            'sssssss',
-            $full_name,
-            $email,
-            $phone,
-            $service,
-            $booking_date,
-            $payment_method,
-            $payment_status
-        );
-
-        if ($stmt->execute()) {
-            $success = true;
-        } else {
-            $errors[] = 'Something went wrong saving your booking. Please try again.';
-        }
-
-        $stmt->close();
-    }
+if (!empty($dive)) {
+    $service_name = $dive;
+} elseif (!empty($tour)) {
+    $service_name = $tour;
+} elseif (!empty($gear)) {
+    $service_name = $gear;
+} elseif (!empty($course)) {
+    $service_name = $course;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Book a Dive — Azura Reef Dive</title>
+
+<title>Book a Dive | Azura Reef</title>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
+
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="style.css">
+
 <style>
-  .booking-wrap{max-width:560px;margin:0 auto;padding:96px 24px;}
-  .booking-wrap h1{font-size:2rem;color:var(--teal-900);margin-bottom:12px;}
-  .booking-wrap > p{color:var(--muted);margin-bottom:36px;}
-  .form-group{margin-bottom:20px;}
-  .form-group label{display:block;font-weight:600;font-size:0.9rem;color:var(--teal-900);margin-bottom:6px;}
-  .form-group input[type="text"],
-  .form-group input[type="email"],
-  .form-group input[type="tel"],
-  .form-group input[type="date"],
-  .form-group select{
-    width:100%;
-    padding:12px 14px;
-    border:1px solid var(--border);
-    border-radius:var(--radius-sm);
-    font-family:'Inter',sans-serif;
-    font-size:0.95rem;
-    color:var(--ink);
-  }
-  .form-group input:focus,
-  .form-group select:focus{
-    outline:none;
-    border-color:var(--teal-500);
-  }
-  .radio-row{display:flex;gap:20px;}
-  .radio-option{
-    display:flex;align-items:center;gap:8px;
-    padding:12px 16px;
-    border:1px solid var(--border);
-    border-radius:var(--radius-sm);
-    cursor:pointer;
-    flex:1;
-    font-size:0.92rem;
-  }
-  .radio-option:has(input:checked){
-    border-color:var(--teal-500);
-    background:var(--mint-50);
-  }
-  .alert{
-    padding:14px 18px;
-    border-radius:var(--radius-sm);
-    margin-bottom:24px;
-    font-size:0.92rem;
-  }
-  .alert-success{background:#e6f4ef;color:var(--teal-800);border:1px solid #b9e2d3;}
-  .alert-error{background:#fdecea;color:#9c2b25;border:1px solid #f5c2bd;}
-  .alert-error ul{margin:6px 0 0 18px;list-style:disc;}
-  .back-link{display:inline-block;margin-bottom:24px;font-size:0.9rem;color:var(--teal-500);font-weight:600;}
+
+.booking-page {
+    background: var(--mint-50);
+    min-height: 100vh;
+    padding: 60px 20px;
+}
+
+.booking-container {
+    max-width: 900px;
+    margin: auto;
+}
+
+.booking-header {
+    text-align: center;
+    margin-bottom: 35px;
+}
+
+.booking-header h1 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    font-size: 2.7rem;
+    margin-bottom: 10px;
+}
+
+.booking-header p {
+    color: var(--muted);
+}
+
+.booking-form {
+    background: white;
+    border-radius: 20px;
+    padding: 35px;
+    box-shadow: var(--shadow);
+}
+
+.form-section {
+    margin-bottom: 32px;
+}
+
+.form-section h2 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    margin-bottom: 18px;
+    font-size: 1.5rem;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.form-group.full {
+    grid-column: 1 / -1;
+}
+
+label {
+    font-weight: 600;
+    color: var(--ink);
+    font-size: .9rem;
+}
+
+input,
+select,
+textarea {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-family: "Inter", sans-serif;
+    font-size: .95rem;
+    outline: none;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--teal-500);
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.payment-options {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.payment-option {
+    border: 2px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    cursor: pointer;
+    transition: .2s;
+    background: white;
+}
+
+.payment-option:hover {
+    border-color: var(--teal-500);
+}
+
+.payment-option input {
+    width: auto;
+    margin-right: 7px;
+}
+
+.payment-option strong {
+    color: var(--teal-900);
+}
+
+.payment-section {
+    display: none;
+    margin-top: 20px;
+    padding: 20px;
+    border-radius: 14px;
+    background: var(--mint-50);
+    border: 1px solid var(--border);
+}
+
+.payment-section.active {
+    display: block;
+}
+
+.gcash-box {
+    text-align: center;
+}
+
+.gcash-box img {
+    width: 230px;
+    max-width: 100%;
+    border-radius: 14px;
+    margin: 15px auto;
+    display: block;
+    background: white;
+    padding: 10px;
+    border: 1px solid var(--border);
+}
+
+.payment-note {
+    font-size: .85rem;
+    color: var(--muted);
+    margin-top: 8px;
+}
+
+.demo-card-warning {
+    background: #fff8dd;
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+    font-size: .85rem;
+    color: #765b13;
+}
+
+.submit-area {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.submit-btn {
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 14px 28px;
+}
+
+.back-home {
+    display: inline-block;
+    margin-bottom: 20px;
+    color: var(--teal-900);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+@media(max-width: 700px) {
+
+    .form-grid,
+    .payment-options {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-form {
+        padding: 24px;
+    }
+
+}
+
 </style>
+
 </head>
+
 <body>
 
-<div class="booking-wrap">
-  <a href="index.php" class="back-link">&larr; Back to home</a>
-  <h1>Book a Dive</h1>
-  <p>Fill in your details and we'll confirm your spot. You can pay online now or in cash when you arrive.</p>
+<div class="booking-page">
 
-  <?php if ($success): ?>
-    <div class="alert alert-success">
-      Thanks! Your booking has been received. We'll reach out to confirm the details soon.
-    </div>
-  <?php endif; ?>
+<div class="booking-container">
 
-  <?php if (!empty($errors)): ?>
-    <div class="alert alert-error">
-      Please fix the following:
-      <ul>
-        <?php foreach ($errors as $e): ?>
-          <li><?= htmlspecialchars($e) ?></li>
-        <?php endforeach; ?>
-      </ul>
-    </div>
-  <?php endif; ?>
+<a href="index.php" class="back-home">
+    ← Back to Home
+</a>
 
-  <form method="POST" action="booking.php">
-    <div class="form-group">
-      <label for="full_name">Full Name</label>
-      <input type="text" id="full_name" name="full_name" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" required>
-    </div>
+<div class="booking-header">
 
-    <div class="form-group">
-      <label for="email">Email</label>
-      <input type="email" id="email" name="email" value="<?= htmlspecialchars($_POST['email'] ?? '') ?>" required>
-    </div>
+<h1>Book Your Experience</h1>
 
-    <div class="form-group">
-      <label for="phone">Phone Number (optional)</label>
-      <input type="tel" id="phone" name="phone" value="<?= htmlspecialchars($_POST['phone'] ?? '') ?>">
-    </div>
+<p>
+Complete the form below to reserve your Azura Reef experience.
+</p>
 
-    <div class="form-group">
-      <label for="service">Service</label>
-      <select id="service" name="service" required>
-        <option value="">-- Choose a service --</option>
-        <?php foreach ($services_list as $s): ?>
-          <option value="<?= htmlspecialchars($s) ?>" <?= ($preselected_service === $s) ? 'selected' : '' ?>>
-            <?= htmlspecialchars($s) ?>
-          </option>
-        <?php endforeach; ?>
-      </select>
-    </div>
-
-    <div class="form-group">
-      <label for="booking_date">Preferred Date</label>
-      <input type="date" id="booking_date" name="booking_date" value="<?= htmlspecialchars($_POST['booking_date'] ?? '') ?>" required>
-    </div>
-
-    <div class="form-group">
-      <label>Payment Method</label>
-      <div class="radio-row">
-        <label class="radio-option">
-          <input type="radio" name="payment_method" value="cash" <?= (($_POST['payment_method'] ?? '') === 'cash') ? 'checked' : '' ?> required>
-          Pay in cash at the dive center
-        </label>
-        <label class="radio-option">
-          <input type="radio" name="payment_method" value="online" <?= (($_POST['payment_method'] ?? '') === 'online') ? 'checked' : '' ?>>
-          Pay online now
-        </label>
-      </div>
-    </div>
-
-    <button type="submit" class="btn btn-primary">Submit Booking</button>
-  </form>
 </div>
 
+
+<form
+    action="process_booking.php"
+    method="POST"
+    enctype="multipart/form-data"
+    class="booking-form"
+>
+
+
+<div class="form-section">
+
+<h2>Booking Details</h2>
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>Service Type</label>
+
+<select name="service_type" required>
+
+<option value="">Select service type</option>
+
+<option value="dive"
+<?= $type === 'dive' ? 'selected' : '' ?>>
+Guided Fun Dive
+</option>
+
+<option value="snorkeling"
+<?= $type === 'snorkeling' ? 'selected' : '' ?>>
+Snorkeling Tour
+</option>
+
+<option value="course"
+<?= $type === 'course' ? 'selected' : '' ?>>
+Diving Course
+</option>
+
+<option value="gear"
+<?= $type === 'gear' ? 'selected' : '' ?>>
+Premium Gear
+</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Experience / Service</label>
+
+<input
+    type="text"
+    name="service_name"
+    value="<?= htmlspecialchars($service_name) ?>"
+    placeholder="Example: Guided Fun Dive"
+    required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Booking Date</label>
+
+<input
+    type="date"
+    name="booking_date"
+    required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Booking Time</label>
+
+<select name="booking_time" required>
+
+<option value="">Choose time</option>
+
+<option value="7:30 AM">7:30 AM</option>
+
+<option value="8:00 AM">8:00 AM</option>
+
+<option value="9:00 AM">9:00 AM</option>
+
+<option value="1:00 PM">1:00 PM</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Number of Guests</label>
+
+<input
+    type="number"
+    name="guests"
+    min="1"
+    value="1"
+    required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Need Equipment?</label>
+
+<select name="equipment" required>
+
+<option value="">Select</option>
+
+<option value="Yes">Yes</option>
+
+<option value="No">No</option>
+
+</select>
+
+</div>
+
+
+<div class="form-group full">
+
+<label>Certification</label>
+
+<select name="certification">
+
+<option value="None">
+None / Not Certified
+</option>
+
+<option value="Open Water">
+Open Water
+</option>
+
+<option value="Advanced Open Water">
+Advanced Open Water
+</option>
+
+<option value="Other">
+Other
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="form-section">
+
+<h2>Customer Information</h2>
+
+<div class="form-grid">
+
+<div class="form-group">
+
+<label>Full Name</label>
+
+<input
+    type="text"
+    name="full_name"
+    required
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Email Address</label>
+
+<input
+    type="email"
+    name="email"
+    value="<?= htmlspecialchars($_SESSION['email'] ?? '') ?>"
+    required
+>
+
+</div>
+
+
+<div class="form-group full">
+
+<label>Phone Number</label>
+
+<input
+    type="text"
+    name="phone"
+    placeholder="09XXXXXXXXX"
+    required
+>
+
+</div>
+
+
+<div class="form-group full">
+
+<label>Additional Notes</label>
+
+<textarea
+    name="notes"
+    placeholder="Optional requests or notes..."
+></textarea>
+
+</div>
+
+</div>
+
+</div>
+
+
+
+<div class="form-section">
+
+<h2>Mode of Payment</h2>
+
+<div class="payment-options">
+
+
+<label class="payment-option">
+
+<input
+    type="radio"
+    name="payment_method"
+    value="cash"
+    required
+>
+
+<strong>Cash</strong>
+
+<div class="payment-note">
+Pay directly at the dive center.
+</div>
+
+</label>
+
+
+
+<label class="payment-option">
+
+<input
+    type="radio"
+    name="payment_method"
+    value="gcash"
+    required
+>
+
+<strong>GCash</strong>
+
+<div class="payment-note">
+Scan the QR code and upload payment proof.
+</div>
+
+</label>
+
+
+
+<label class="payment-option">
+
+<input
+    type="radio"
+    name="payment_method"
+    value="card"
+    required
+>
+
+<strong>Credit / Debit Card</strong>
+
+<div class="payment-note">
+Demo payment form for the project.
+</div>
+
+</label>
+
+
+</div>
+
+
+
+<!-- GCASH -->
+
+<div
+    id="gcash-section"
+    class="payment-section"
+>
+
+<div class="gcash-box">
+
+<h3>Pay through GCash</h3>
+
+<p>
+Scan the QR code below using your GCash app.
+</p>
+
+<img
+    src="images/gcash-qr.jpg"
+    alt="GCash QR Code"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>
+Upload Screenshot / Payment Receipt
+</label>
+
+<input
+    type="file"
+    name="payment_proof"
+    id="payment_proof"
+    accept=".jpg,.jpeg,.png"
+>
+
+<div class="payment-note">
+Accepted files: JPG, JPEG, PNG.
+</div>
+
+</div>
+
+</div>
+
+
+
+<!-- CARD -->
+
+<div
+    id="card-section"
+    class="payment-section"
+>
+
+<div class="demo-card-warning">
+
+For school demonstration only.
+Do not enter real card information.
+
+</div>
+
+
+<div class="form-grid">
+
+
+<div class="form-group">
+
+<label>Cardholder Name</label>
+
+<input
+    type="text"
+    name="cardholder_name"
+    id="cardholder_name"
+    placeholder="Name on card"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Card Number</label>
+
+<input
+    type="text"
+    name="card_number"
+    id="card_number"
+    placeholder="1111 2222 3333 4444"
+    maxlength="19"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Expiration Date</label>
+
+<input
+    type="text"
+    name="expiration_date"
+    id="expiration_date"
+    placeholder="MM/YY"
+    maxlength="5"
+>
+
+</div>
+
+
+<div class="form-group">
+
+<label>Security Code</label>
+
+<input
+    type="password"
+    name="security_code"
+    id="security_code"
+    placeholder="CVV"
+    maxlength="4"
+>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="submit-area">
+
+<button
+    type="submit"
+    class="btn btn-dark submit-btn"
+>
+Confirm Booking
+</button>
+
+</div>
+
+
+</form>
+
+
+</div>
+
+</div>
+
+
+<script>
+
+const paymentRadios =
+document.querySelectorAll(
+    'input[name="payment_method"]'
+);
+
+const gcashSection =
+document.getElementById(
+    'gcash-section'
+);
+
+const cardSection =
+document.getElementById(
+    'card-section'
+);
+
+const paymentProof =
+document.getElementById(
+    'payment_proof'
+);
+
+const cardholderName =
+document.getElementById(
+    'cardholder_name'
+);
+
+const cardNumber =
+document.getElementById(
+    'card_number'
+);
+
+const expirationDate =
+document.getElementById(
+    'expiration_date'
+);
+
+const securityCode =
+document.getElementById(
+    'security_code'
+);
+
+
+paymentRadios.forEach(radio => {
+
+    radio.addEventListener(
+        'change',
+        function () {
+
+            gcashSection.classList.remove(
+                'active'
+            );
+
+            cardSection.classList.remove(
+                'active'
+            );
+
+
+            paymentProof.required = false;
+
+            cardholderName.required = false;
+            cardNumber.required = false;
+            expirationDate.required = false;
+            securityCode.required = false;
+
+
+            if (this.value === 'gcash') {
+
+                gcashSection.classList.add(
+                    'active'
+                );
+
+                paymentProof.required = true;
+
+            }
+
+
+            if (this.value === 'card') {
+
+                cardSection.classList.add(
+                    'active'
+                );
+
+                cardholderName.required = true;
+                cardNumber.required = true;
+                expirationDate.required = true;
+                securityCode.required = true;
+
+            }
+
+        }
+    );
+
+});
+
+
+cardNumber.addEventListener(
+    'input',
+    function () {
+
+        let value =
+            this.value.replace(/\D/g, '');
+
+        value =
+            value.substring(0, 16);
+
+        this.value =
+            value.replace(
+                /(.{4})/g,
+                '$1 '
+            ).trim();
+
+    }
+);
+
+
+expirationDate.addEventListener(
+    'input',
+    function () {
+
+        let value =
+            this.value.replace(/\D/g, '');
+
+        value =
+            value.substring(0, 4);
+
+        if (value.length >= 3) {
+
+            value =
+                value.substring(0, 2)
+                + '/'
+                + value.substring(2);
+
+        }
+
+        this.value = value;
+
+    }
+);
+
+</script>
+
+
 </body>
+
 </html>

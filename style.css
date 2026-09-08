@@ -124,7 +124,10 @@
     transition:opacity .15s ease;
   }
   .nav-links a:hover{opacity:1;color:var(--teal-500);}
-  .nav-cta{display:flex;align-items:center;}
+  .nav-cta{display:flex;align-items:center;gap:18px;}
+  .nav-user{font-size:0.9rem;color:var(--muted);font-weight:500;}
+  .nav-logout{font-size:0.9rem;font-weight:600;color:var(--teal-700);}
+  .nav-logout:hover{color:var(--teal-500);}
   .menu-toggle{display:none;background:none;border:none;cursor:pointer;}
   .menu-toggle svg{width:26px;height:26px;stroke:var(--teal-900);}
 
@@ -137,7 +140,7 @@
     overflow:hidden;
     background:
       linear-gradient(180deg, rgba(9,38,36,0.78) 0%, rgba(9,38,36,0.88) 55%, rgba(9,38,36,0.96) 100%),
-      url('images/diverfish.jpg') center/cover no-repeat;
+      url('https://images.unsplash.com/photo-1546410531-bb4caa6b424d?auto=format&fit=crop&w=1600&q=80') center/cover no-repeat;
   }
   .hero-inner{
     position:relative;
