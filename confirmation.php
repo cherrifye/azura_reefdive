@@ -3,32 +3,67 @@ session_start();
 
 require_once "db.php";
 
-$booking_id = isset($_GET["id"]) ? (int) $_GET["id"] : 0;
+$booking_id = (int) ($_GET["id"] ?? 0);
 
 if ($booking_id <= 0) {
     header("Location: index.php");
     exit;
 }
 
-$sql = "
-    SELECT *
-    FROM bookings
-    WHERE id = ?
-";
-
-$stmt = $conn->prepare($sql);
+$stmt = $conn->prepare(
+    "SELECT *
+     FROM bookings
+     WHERE id = ?"
+);
 
 $stmt->bind_param("i", $booking_id);
-
 $stmt->execute();
 
 $result = $stmt->get_result();
-
 $booking = $result->fetch_assoc();
 
 if (!$booking) {
     die("Booking not found.");
 }
+
+$booking_status =
+    strtolower(
+        $booking["booking_status"] ?? "pending"
+    );
+
+$payment_status =
+    strtolower(
+        $booking["payment_status"] ?? "unpaid"
+    );
+
+$payment_method =
+    strtolower(
+        $booking["payment_method"] ?? "cash"
+    );
+
+if ($payment_method === "gcash") {
+
+    $payment_method_label = "GCash";
+
+} elseif ($payment_method === "card") {
+
+    $payment_method_label =
+        "Credit / Debit Card";
+
+} else {
+
+    $payment_method_label = "Cash";
+
+}
+
+$receipt_number =
+    "AZR-" .
+    str_pad(
+        $booking["id"],
+        4,
+        "0",
+        STR_PAD_LEFT
+    );
 ?>
 
 <!DOCTYPE html>
@@ -36,321 +71,630 @@ if (!$booking) {
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Booking Confirmation | Azura Reef Dive</title>
+<title>
+Booking Receipt | Azura Reef
+</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
 
-    <link rel="stylesheet" href="style.css">
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
-    <style>
+<style>
 
-        .confirmation-section {
-            min-height: 80vh;
-            background: var(--mint-50);
-            padding: 90px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
+body {
+    background: var(--mint-50);
+}
 
-        .confirmation-card {
-            width: 100%;
-            max-width: 720px;
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            padding: 45px;
-        }
+.receipt-page {
+    min-height: 100vh;
+    padding: 25px 15px;
+}
 
-        .success-icon {
-            width: 65px;
-            height: 65px;
-            background: var(--mint-100);
-            color: var(--teal-500);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2rem;
-            margin: 0 auto 20px;
-        }
+.receipt-container {
+    max-width: 600px;
+    margin: auto;
+}
 
-        .confirmation-heading {
-            text-align: center;
-            margin-bottom: 35px;
-        }
+.receipt-card {
+    background: white;
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+}
 
-        .confirmation-heading h1 {
-            color: var(--teal-900);
-            font-size: 2.3rem;
-            margin-bottom: 10px;
-        }
+.receipt-header {
+    text-align: center;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 18px;
+}
 
-        .confirmation-heading p {
-            color: var(--muted);
-        }
+.receipt-header h1 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    font-size: 1.7rem;
+    margin-bottom: 4px;
+}
 
-        .booking-number {
-            background: var(--teal-900);
-            color: white;
-            border-radius: var(--radius-md);
-            text-align: center;
-            padding: 18px;
-            margin-bottom: 30px;
-        }
+.receipt-header p {
+    color: var(--muted);
+    font-size: .85rem;
+}
 
-        .booking-number span {
-            display: block;
-            font-size: .75rem;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: var(--muted-light);
-            margin-bottom: 4px;
-        }
+.receipt-number {
+    margin-top: 8px;
+    font-size: .85rem;
+    font-weight: 700;
+    color: var(--teal-900);
+}
 
-        .booking-number strong {
-            font-family: 'Fraunces', serif;
-            font-size: 1.6rem;
-        }
+.receipt-section {
+    margin-bottom: 18px;
+}
 
-        .details {
-            border-top: 1px solid var(--border);
-        }
+.receipt-section h2 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    font-size: 1.05rem;
+    margin-bottom: 10px;
+}
 
-        .detail-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 20px;
-            padding: 14px 0;
-            border-bottom: 1px solid var(--border);
-        }
+.receipt-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
 
-        .detail-label {
-            color: var(--muted);
-        }
+.receipt-item {
+    background: var(--mint-50);
+    border-radius: 9px;
+    padding: 10px 12px;
+}
 
-        .detail-value {
-            color: var(--teal-900);
-            font-weight: 600;
-            text-align: right;
-        }
+.receipt-label {
+    font-size: .7rem;
+    color: var(--muted);
+    margin-bottom: 3px;
+}
 
-        .confirmation-actions {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
+.receipt-value {
+    font-size: .85rem;
+    font-weight: 600;
+    color: var(--ink);
+}
 
-        @media (max-width: 600px) {
+.status-badge {
+    display: inline-block;
+    padding: 5px 9px;
+    border-radius: 999px;
+    font-size: .65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
 
-            .confirmation-card {
-                padding: 30px 20px;
-            }
+.message-box {
+    background: var(--mint-50);
+    padding: 10px 12px;
+    border-radius: 9px;
+    color: var(--muted);
+    font-size: .8rem;
+    line-height: 1.4;
+    margin-top: 10px;
+}
 
-            .detail-row {
-                flex-direction: column;
-                gap: 5px;
-            }
+.receipt-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-top: 20px;
+}
 
-            .detail-value {
-                text-align: left;
-            }
-        }
+.receipt-actions .btn {
+    padding: 9px 14px;
+    font-size: .8rem;
+}
 
-    </style>
+.print-btn {
+    border: none;
+    cursor: pointer;
+}
+
+@media(max-width: 650px) {
+
+    .receipt-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .receipt-card {
+        padding: 24px;
+    }
+
+}
+
+@media print {
+
+    body {
+        background: white;
+    }
+
+    .receipt-page {
+        padding: 0;
+    }
+
+    .receipt-card {
+        box-shadow: none;
+        border: none;
+    }
+
+    .receipt-actions {
+        display: none;
+    }
+
+}
+
+</style>
 
 </head>
 
 <body>
 
+<div class="receipt-page">
 
-<header>
+<div class="receipt-container">
 
-    <div class="nav-wrap">
+<div class="receipt-card">
 
-        <a href="index.php" class="brand">
 
-            <span class="brand-icon">
-                <img src="images/daybbb .png" alt="Azura Reef logo">
-            </span>
+<div class="receipt-header">
 
-            <span class="brand-name">
-                Azura Reef
-            </span>
+<h1>
+Azura Reef Dive
+</h1>
 
-        </a>
+<p>
+Booking & Payment Receipt
+</p>
 
-        <div class="nav-cta">
+<div class="receipt-number">
 
-            <a href="index.php" class="btn btn-dark">
-                Home
-            </a>
+Receipt No:
+<?= htmlspecialchars($receipt_number) ?>
 
-        </div>
+</div>
 
-    </div>
+</div>
 
-</header>
 
 
-<section class="confirmation-section">
+<div class="receipt-section">
 
-    <div class="confirmation-card">
+<h2>
+Customer Information
+</h2>
 
-        <div class="success-icon">
-            ✓
-        </div>
+<div class="receipt-grid">
 
-        <div class="confirmation-heading">
 
-            <h1>Booking Received!</h1>
+<div class="receipt-item">
 
-            <p>
-                Thank you, <?= htmlspecialchars($booking["full_name"]) ?>.
-                Your booking has been submitted successfully.
-            </p>
+<div class="receipt-label">
+Customer Name
+</div>
 
-        </div>
+<div class="receipt-value">
 
+<?= htmlspecialchars(
+    $booking["full_name"]
+) ?>
 
-        <div class="booking-number">
+</div>
 
-            <span>
-                Booking Number
-            </span>
+</div>
 
-            <strong>
-                AZR-<?= str_pad($booking["id"], 4, "0", STR_PAD_LEFT) ?>
-            </strong>
 
-        </div>
+<div class="receipt-item">
 
+<div class="receipt-label">
+Email
+</div>
 
-        <div class="details">
+<div class="receipt-value">
 
-            <div class="detail-row">
+<?= htmlspecialchars(
+    $booking["email"]
+) ?>
 
-                <span class="detail-label">
-                    Experience
-                </span>
+</div>
 
-                <span class="detail-value">
-                    <?= htmlspecialchars($booking["service_name"]) ?>
-                </span>
+</div>
 
-            </div>
 
+<div class="receipt-item">
 
-            <div class="detail-row">
+<div class="receipt-label">
+Phone
+</div>
 
-                <span class="detail-label">
-                    Service Type
-                </span>
+<div class="receipt-value">
 
-                <span class="detail-value">
-                    <?= htmlspecialchars(ucwords(str_replace("_", " ", $booking["service_type"]))) ?>
-                </span>
+<?= htmlspecialchars(
+    $booking["phone"]
+) ?>
 
-            </div>
+</div>
 
+</div>
 
-            <div class="detail-row">
 
-                <span class="detail-label">
-                    Date
-                </span>
+<div class="receipt-item">
 
-                <span class="detail-value">
-                    <?= htmlspecialchars($booking["booking_date"]) ?>
-                </span>
+<div class="receipt-label">
+Guests
+</div>
 
-            </div>
+<div class="receipt-value">
 
+<?= htmlspecialchars(
+    $booking["guests"]
+) ?>
 
-            <div class="detail-row">
+</div>
 
-                <span class="detail-label">
-                    Time
-                </span>
+</div>
 
-                <span class="detail-value">
-                    <?= htmlspecialchars($booking["booking_time"]) ?>
-                </span>
 
-            </div>
+</div>
 
+</div>
 
-            <div class="detail-row">
 
-                <span class="detail-label">
-                    Guests
-                </span>
 
-                <span class="detail-value">
-                    <?= (int) $booking["guests"] ?>
-                </span>
+<div class="receipt-section">
 
-            </div>
+<h2>
+Booking Details
+</h2>
 
+<div class="receipt-grid">
 
-            <div class="detail-row">
 
-                <span class="detail-label">
-                    Equipment
-                </span>
+<div class="receipt-item">
 
-                <span class="detail-value">
-                    <?= htmlspecialchars($booking["equipment"]) ?>
-                </span>
+<div class="receipt-label">
+Service
+</div>
 
-            </div>
+<div class="receipt-value">
 
+<?= htmlspecialchars(
+    $booking["service_name"]
+) ?>
 
-            <div class="detail-row">
+</div>
 
-                <span class="detail-label">
-                    Booking Status
-                </span>
+</div>
 
-                <span class="detail-value">
-                    <?= ucfirst(htmlspecialchars($booking["booking_status"])) ?>
-                </span>
 
-            </div>
+<div class="receipt-item">
 
-        </div>
+<div class="receipt-label">
+Service Type
+</div>
 
+<div class="receipt-value">
 
-        <div class="confirmation-actions">
+<?= htmlspecialchars(
+    ucfirst(
+        $booking["service_type"]
+    )
+) ?>
 
-            <a href="index.php" class="btn btn-dark">
-                Back to Home
-            </a>
+</div>
 
-            <a href="booking.php" class="btn btn-outline">
-                Make Another Booking
-            </a>
+</div>
 
-        </div>
 
-    </div>
+<div class="receipt-item">
 
-</section>
+<div class="receipt-label">
+Booking Date
+</div>
+
+<div class="receipt-value">
+
+<?= htmlspecialchars(
+    $booking["booking_date"]
+) ?>
+
+</div>
+
+</div>
+
+
+<div class="receipt-item">
+
+<div class="receipt-label">
+Booking Time
+</div>
+
+<div class="receipt-value">
+
+<?= htmlspecialchars(
+    $booking["booking_time"]
+) ?>
+
+</div>
+
+</div>
+
+
+<div class="receipt-item">
+
+<div class="receipt-label">
+Equipment
+</div>
+
+<div class="receipt-value">
+
+<?php if (
+    !empty($booking["rental_gear"])
+): ?>
+
+    <?= htmlspecialchars(
+        $booking["rental_gear"]
+    ) ?>
+
+<?php elseif (
+    ($booking["equipment"] ?? "") === "Yes"
+): ?>
+
+    Rental equipment requested
+
+<?php else: ?>
+
+    I have my own equipment
+
+<?php endif; ?>
+
+</div>
+
+</div>
+
+
+<div class="receipt-item">
+
+<div class="receipt-label">
+Certification
+</div>
+
+<div class="receipt-value">
+
+<?= htmlspecialchars(
+    $booking["certification"]
+) ?>
+
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+
+<div class="receipt-section">
+
+<h2>
+Payment Information
+</h2>
+
+<div class="receipt-grid">
+
+
+<div class="receipt-item">
+
+<div class="receipt-label">
+Payment Method
+</div>
+
+<div class="receipt-value">
+
+<?= htmlspecialchars(
+    $payment_method_label
+) ?>
+
+</div>
+
+</div>
+
+
+<div class="receipt-item">
+
+<div class="receipt-label">
+Payment Status
+</div>
+
+<div class="receipt-value">
+
+<span
+class="status-badge <?= htmlspecialchars(
+    $payment_status
+) ?>"
+>
+
+<?= strtoupper(
+    htmlspecialchars(
+        $payment_status
+    )
+) ?>
+
+</span>
+
+</div>
+
+</div>
+
+
+<div class="receipt-item">
+
+<div class="receipt-label">
+Booking Status
+</div>
+
+<div class="receipt-value">
+
+<span
+class="status-badge <?= htmlspecialchars(
+    $booking_status
+) ?>"
+>
+
+<?= strtoupper(
+    htmlspecialchars(
+        $booking_status
+    )
+) ?>
+
+</span>
+
+</div>
+
+</div>
+
+
+</div>
+
+
+<div class="message-box">
+
+<?php if (
+    $payment_method === "gcash" &&
+    $payment_status === "pending"
+): ?>
+
+Your GCash payment proof has been submitted and is waiting for admin verification.
+
+<?php elseif (
+    $payment_method === "gcash" &&
+    $payment_status === "paid"
+): ?>
+
+Your GCash payment has been verified.
+
+<?php elseif (
+    $payment_method === "cash" &&
+    $payment_status === "unpaid"
+): ?>
+
+Payment will be made in cash.
+
+<?php elseif (
+    $payment_method === "cash" &&
+    $payment_status === "paid"
+): ?>
+
+Cash payment has been recorded as paid.
+
+<?php elseif (
+    $payment_method === "card"
+): ?>
+
+Demo card payment recorded successfully.
+
+<?php endif; ?>
+
+</div>
+
+</div>
+
+
+
+<div class="receipt-actions">
+
+<a
+    href="index.php"
+    class="btn btn-outline"
+>
+Home
+</a>
+
+
+<?php if (
+    isset($_SESSION["user_id"]) &&
+    ($_SESSION["role"] ?? "") === "customer"
+): ?>
+
+<a
+    href="my_bookings.php"
+    class="btn btn-outline"
+>
+My Bookings
+</a>
+
+<?php endif; ?>
+
+
+<a
+    href="booking.php"
+    class="btn btn-dark"
+>
+Book Another
+</a>
+
+
+<button
+    type="button"
+    onclick="window.print()"
+    class="btn btn-dark print-btn"
+>
+Print Receipt
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
 
 
 </body>
+
 </html>
+
+<?php
+
+$stmt->close();
+$conn->close();
+
+?>

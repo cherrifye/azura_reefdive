@@ -131,6 +131,36 @@ textarea {
     resize: vertical;
 }
 
+
+/* RENTAL EQUIPMENT */
+
+.rental-gear-options {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.rental-gear-options label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    background: var(--mint-50);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+
+    padding: 12px 14px;
+    cursor: pointer;
+}
+
+.rental-gear-options input {
+    width: auto;
+    margin: 0;
+}
+
+
+/* PAYMENT */
+
 .payment-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -222,10 +252,12 @@ textarea {
     font-weight: 600;
 }
 
+
 @media(max-width: 700px) {
 
     .form-grid,
-    .payment-options {
+    .payment-options,
+    .rental-gear-options {
         grid-template-columns: 1fr;
     }
 
@@ -268,37 +300,56 @@ Complete the form below to reserve your Azura Reef experience.
 >
 
 
+<!-- BOOKING DETAILS -->
+
 <div class="form-section">
 
 <h2>Booking Details</h2>
 
 <div class="form-grid">
 
+
+<!-- SERVICE TYPE -->
+
 <div class="form-group">
 
 <label>Service Type</label>
 
-<select name="service_type" required>
+<select
+    name="service_type"
+    id="service_type"
+    required
+>
 
-<option value="">Select service type</option>
+<option value="">
+Select service type
+</option>
 
-<option value="dive"
-<?= $type === 'dive' ? 'selected' : '' ?>>
+<option
+    value="dive"
+    <?= $type === 'dive' ? 'selected' : '' ?>
+>
 Guided Fun Dive
 </option>
 
-<option value="snorkeling"
-<?= $type === 'snorkeling' ? 'selected' : '' ?>>
+<option
+    value="snorkeling"
+    <?= $type === 'snorkeling' ? 'selected' : '' ?>
+>
 Snorkeling Tour
 </option>
 
-<option value="course"
-<?= $type === 'course' ? 'selected' : '' ?>>
+<option
+    value="course"
+    <?= $type === 'course' ? 'selected' : '' ?>
+>
 Diving Course
 </option>
 
-<option value="gear"
-<?= $type === 'gear' ? 'selected' : '' ?>>
+<option
+    value="gear"
+    <?= $type === 'gear' ? 'selected' : '' ?>
+>
 Premium Gear
 </option>
 
@@ -307,20 +358,28 @@ Premium Gear
 </div>
 
 
+<!-- EXPERIENCE / SERVICE -->
+
 <div class="form-group">
 
 <label>Experience / Service</label>
 
-<input
-    type="text"
+<select
     name="service_name"
-    value="<?= htmlspecialchars($service_name) ?>"
-    placeholder="Example: Guided Fun Dive"
+    id="service_name"
     required
 >
 
+<option value="">
+Select a service first
+</option>
+
+</select>
+
 </div>
 
+
+<!-- DATE -->
 
 <div class="form-group">
 
@@ -329,32 +388,50 @@ Premium Gear
 <input
     type="date"
     name="booking_date"
+    id="booking_date"
     required
 >
 
 </div>
 
 
+<!-- TIME -->
+
 <div class="form-group">
 
 <label>Booking Time</label>
 
-<select name="booking_time" required>
+<select
+    name="booking_time"
+    required
+>
 
-<option value="">Choose time</option>
+<option value="">
+Choose time
+</option>
 
-<option value="7:30 AM">7:30 AM</option>
+<option value="7:30 AM">
+7:30 AM
+</option>
 
-<option value="8:00 AM">8:00 AM</option>
+<option value="8:00 AM">
+8:00 AM
+</option>
 
-<option value="9:00 AM">9:00 AM</option>
+<option value="9:00 AM">
+9:00 AM
+</option>
 
-<option value="1:00 PM">1:00 PM</option>
+<option value="1:00 PM">
+1:00 PM
+</option>
 
 </select>
 
 </div>
 
+
+<!-- GUESTS -->
 
 <div class="form-group">
 
@@ -371,22 +448,115 @@ Premium Gear
 </div>
 
 
-<div class="form-group">
+<!-- EQUIPMENT -->
 
-<label>Need Equipment?</label>
+<div
+    class="form-group"
+    id="equipment-group"
+>
 
-<select name="equipment" required>
+<label>Equipment</label>
 
-<option value="">Select</option>
+<select
+    name="equipment"
+    id="equipment"
+    required
+>
 
-<option value="Yes">Yes</option>
+<option value="">
+Select equipment option
+</option>
 
-<option value="No">No</option>
+<option value="Yes">
+I need rental equipment
+</option>
+
+<option value="No">
+I have my own equipment
+</option>
 
 </select>
 
 </div>
 
+
+<!-- RENTAL GEAR -->
+
+<div
+    class="form-group full"
+    id="rental-gear-group"
+    style="display: none;"
+>
+
+<label>Choose Rental Equipment</label>
+
+<div class="rental-gear-options">
+
+<label>
+<input
+    type="checkbox"
+    name="rental_gear[]"
+    value="Complete Scuba Set"
+>
+Complete Scuba Set
+</label>
+
+
+<label>
+<input
+    type="checkbox"
+    name="rental_gear[]"
+    value="BCD Rental"
+>
+BCD Rental
+</label>
+
+
+<label>
+<input
+    type="checkbox"
+    name="rental_gear[]"
+    value="Regulator Rental"
+>
+Regulator Rental
+</label>
+
+
+<label>
+<input
+    type="checkbox"
+    name="rental_gear[]"
+    value="Wetsuit Rental"
+>
+Wetsuit Rental
+</label>
+
+
+<label>
+<input
+    type="checkbox"
+    name="rental_gear[]"
+    value="Mask & Fins Set"
+>
+Mask & Fins Set
+</label>
+
+
+<label>
+<input
+    type="checkbox"
+    name="rental_gear[]"
+    value="Tank Rental"
+>
+Tank Rental
+</label>
+
+</div>
+
+</div>
+
+
+<!-- CERTIFICATION -->
 
 <div class="form-group full">
 
@@ -414,17 +584,21 @@ Other
 
 </div>
 
-</div>
 
 </div>
 
+</div>
 
+
+
+<!-- CUSTOMER INFORMATION -->
 
 <div class="form-section">
 
 <h2>Customer Information</h2>
 
 <div class="form-grid">
+
 
 <div class="form-group">
 
@@ -433,6 +607,12 @@ Other
 <input
     type="text"
     name="full_name"
+    value="<?= htmlspecialchars(
+        trim(
+            ($_SESSION['first_name'] ?? '') . ' ' .
+            ($_SESSION['last_name'] ?? '')
+        )
+    ) ?>"
     required
 >
 
@@ -478,11 +658,14 @@ Other
 
 </div>
 
-</div>
 
 </div>
 
+</div>
 
+
+
+<!-- PAYMENT -->
 
 <div class="form-section">
 
@@ -490,6 +673,8 @@ Other
 
 <div class="payment-options">
 
+
+<!-- CASH -->
 
 <label class="payment-option">
 
@@ -510,6 +695,8 @@ Pay directly at the dive center.
 
 
 
+<!-- GCASH -->
+
 <label class="payment-option">
 
 <input
@@ -528,6 +715,8 @@ Scan the QR code and upload payment proof.
 </label>
 
 
+
+<!-- CARD -->
 
 <label class="payment-option">
 
@@ -551,7 +740,7 @@ Demo payment form for the project.
 
 
 
-<!-- GCASH -->
+<!-- GCASH SECTION -->
 
 <div
     id="gcash-section"
@@ -597,7 +786,7 @@ Accepted files: JPG, JPEG, PNG.
 
 
 
-<!-- CARD -->
+<!-- CARD SECTION -->
 
 <div
     id="card-section"
@@ -683,6 +872,8 @@ Do not enter real card information.
 
 
 
+<!-- SUBMIT -->
+
 <div class="submit-area">
 
 <button
@@ -697,13 +888,230 @@ Confirm Booking
 
 </form>
 
-
 </div>
 
 </div>
+
 
 
 <script>
+
+/* =========================
+   SERVICE DROPDOWN
+========================= */
+
+const serviceType =
+document.getElementById('service_type');
+
+const serviceName =
+document.getElementById('service_name');
+
+const equipmentGroup =
+document.getElementById('equipment-group');
+
+const equipment =
+document.getElementById('equipment');
+
+const rentalGearGroup =
+document.getElementById('rental-gear-group');
+
+const rentalGearCheckboxes =
+document.querySelectorAll(
+    'input[name="rental_gear[]"]'
+);
+
+
+const serviceOptions = {
+
+    dive: [
+        'Tubod Marine Sanctuary',
+        'Paliton Reef Dive',
+        'Maite Reef Adventure'
+    ],
+
+    snorkeling: [
+        'Coral Garden Snorkeling',
+        'Turtle & Reef Adventure',
+        'Island Snorkeling Experience'
+    ],
+
+    course: [
+        'Discover Scuba Diving',
+        'Open Water Certification',
+        'Advanced Open Water'
+    ],
+
+    gear: [
+        'Complete Scuba Set',
+        'BCD Rental',
+        'Regulator Rental',
+        'Wetsuit Rental',
+        'Mask & Fins Set',
+        'Tank Rental'
+    ]
+
+};
+
+
+const preselectedService =
+<?= json_encode($service_name) ?>;
+
+
+function updateServiceOptions(
+    selectedService = ''
+) {
+
+    serviceName.innerHTML =
+        '<option value="">Select experience / service</option>';
+
+    const selectedType =
+        serviceType.value;
+
+    if (
+        !selectedType ||
+        !serviceOptions[selectedType]
+    ) {
+        return;
+    }
+
+
+    serviceOptions[selectedType].forEach(
+        function (service) {
+
+            const option =
+                document.createElement('option');
+
+            option.value = service;
+
+            option.textContent = service;
+
+            if (
+                service === selectedService
+            ) {
+                option.selected = true;
+            }
+
+            serviceName.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+
+/* =========================
+   RENTAL GEAR
+========================= */
+
+function updateRentalGear() {
+
+    if (
+        equipment.value === 'Yes' &&
+        (
+            serviceType.value === 'dive' ||
+            serviceType.value === 'snorkeling'
+        )
+    ) {
+
+        rentalGearGroup.style.display =
+            'flex';
+
+    } else {
+
+        rentalGearGroup.style.display =
+            'none';
+
+        rentalGearCheckboxes.forEach(
+            function (checkbox) {
+
+                checkbox.checked = false;
+
+            }
+        );
+
+    }
+
+}
+
+
+equipment.addEventListener(
+    'change',
+    updateRentalGear
+);
+
+
+
+/* =========================
+   EQUIPMENT FIELD
+========================= */
+
+function updateEquipmentField() {
+
+    const selectedType =
+        serviceType.value;
+
+
+    if (
+        selectedType === 'course' ||
+        selectedType === 'gear'
+    ) {
+
+        equipmentGroup.style.display =
+            'none';
+
+        equipment.required = false;
+
+        /*
+        Courses already include equipment.
+        Premium Gear is itself an equipment rental.
+        */
+
+        equipment.value = 'No';
+
+    } else {
+
+        equipmentGroup.style.display =
+            'flex';
+
+        equipment.required = true;
+
+        equipment.value = '';
+
+    }
+
+
+    updateRentalGear();
+
+}
+
+
+
+serviceType.addEventListener(
+    'change',
+    function () {
+
+        updateServiceOptions();
+
+        updateEquipmentField();
+
+    }
+);
+
+
+updateEquipmentField();
+
+updateServiceOptions(
+    preselectedService
+);
+
+
+
+/* =========================
+   PAYMENT
+========================= */
 
 const paymentRadios =
 document.querySelectorAll(
@@ -746,68 +1154,101 @@ document.getElementById(
 );
 
 
-paymentRadios.forEach(radio => {
+paymentRadios.forEach(
+    radio => {
 
-    radio.addEventListener(
-        'change',
-        function () {
+        radio.addEventListener(
+            'change',
+            function () {
 
-            gcashSection.classList.remove(
-                'active'
-            );
+                gcashSection
+                    .classList
+                    .remove('active');
 
-            cardSection.classList.remove(
-                'active'
-            );
-
-
-            paymentProof.required = false;
-
-            cardholderName.required = false;
-            cardNumber.required = false;
-            expirationDate.required = false;
-            securityCode.required = false;
+                cardSection
+                    .classList
+                    .remove('active');
 
 
-            if (this.value === 'gcash') {
+                paymentProof.required =
+                    false;
 
-                gcashSection.classList.add(
-                    'active'
-                );
+                cardholderName.required =
+                    false;
 
-                paymentProof.required = true;
+                cardNumber.required =
+                    false;
+
+                expirationDate.required =
+                    false;
+
+                securityCode.required =
+                    false;
+
+
+                if (
+                    this.value === 'gcash'
+                ) {
+
+                    gcashSection
+                        .classList
+                        .add('active');
+
+                    paymentProof.required =
+                        true;
+
+                }
+
+
+                if (
+                    this.value === 'card'
+                ) {
+
+                    cardSection
+                        .classList
+                        .add('active');
+
+                    cardholderName.required =
+                        true;
+
+                    cardNumber.required =
+                        true;
+
+                    expirationDate.required =
+                        true;
+
+                    securityCode.required =
+                        true;
+
+                }
 
             }
+        );
+
+    }
+);
 
 
-            if (this.value === 'card') {
 
-                cardSection.classList.add(
-                    'active'
-                );
-
-                cardholderName.required = true;
-                cardNumber.required = true;
-                expirationDate.required = true;
-                securityCode.required = true;
-
-            }
-
-        }
-    );
-
-});
-
+/* =========================
+   CARD FORMATTING
+========================= */
 
 cardNumber.addEventListener(
     'input',
     function () {
 
         let value =
-            this.value.replace(/\D/g, '');
+            this.value.replace(
+                /\D/g,
+                ''
+            );
 
         value =
-            value.substring(0, 16);
+            value.substring(
+                0,
+                16
+            );
 
         this.value =
             value.replace(
@@ -824,24 +1265,77 @@ expirationDate.addEventListener(
     function () {
 
         let value =
-            this.value.replace(/\D/g, '');
+            this.value.replace(
+                /\D/g,
+                ''
+            );
 
         value =
-            value.substring(0, 4);
+            value.substring(
+                0,
+                4
+            );
 
-        if (value.length >= 3) {
+
+        if (
+            value.length >= 3
+        ) {
 
             value =
-                value.substring(0, 2)
+                value.substring(
+                    0,
+                    2
+                )
                 + '/'
                 + value.substring(2);
 
         }
 
+
         this.value = value;
 
     }
 );
+
+
+
+/* =========================
+   PREVENT PAST DATES
+========================= */
+
+const bookingDate =
+document.getElementById(
+    'booking_date'
+);
+
+if (bookingDate) {
+
+    const today =
+        new Date();
+
+    const year =
+        today.getFullYear();
+
+    const month =
+        String(
+            today.getMonth() + 1
+        ).padStart(
+            2,
+            '0'
+        );
+
+    const day =
+        String(
+            today.getDate()
+        ).padStart(
+            2,
+            '0'
+        );
+
+    bookingDate.min =
+        `${year}-${month}-${day}`;
+
+}
 
 </script>
 

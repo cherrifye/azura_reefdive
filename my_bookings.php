@@ -1,788 +1,1412 @@
 <?php
+
 session_start();
+
 require_once "db.php";
 
-/* Customer must be logged in */
+
+/* =========================
+   LOGIN CHECK
+========================= */
+
 if (!isset($_SESSION["user_id"])) {
+
     header("Location: login.php");
     exit;
+
 }
 
-/* Admin should use the admin dashboard */
-if (($_SESSION["role"] ?? "") === "admin") {
+
+/* =========================
+   ADMIN REDIRECT
+========================= */
+
+if (
+    ($_SESSION["role"] ?? "") === "admin"
+) {
+
     header("Location: admin_dashboard.php");
     exit;
+
 }
 
-$user_id = $_SESSION["user_id"];
 
-/* Get bookings belonging to logged-in customer */
-$stmt = $conn->prepare(
-    "SELECT *
-     FROM bookings
-     WHERE user_id = ?
-     ORDER BY created_at DESC"
+/* =========================
+   GET CUSTOMER BOOKINGS
+========================= */
+
+$user_id =
+    $_SESSION["user_id"];
+
+
+$stmt =
+    $conn->prepare(
+        "
+        SELECT *
+        FROM bookings
+        WHERE user_id = ?
+        ORDER BY created_at DESC
+        "
+    );
+
+
+$stmt->bind_param(
+    "i",
+    $user_id
 );
 
-$stmt->bind_param("i", $user_id);
+
 $stmt->execute();
 
-$bookings = $stmt->get_result();
+
+$bookings =
+    $stmt->get_result();
+
 ?>
 
+
 <!DOCTYPE html>
+
 <html lang="en">
+
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>My Bookings | Azura Reef Dive</title>
+<title>
+My Bookings | Azura Reef
+</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
 
-    <link rel="stylesheet" href="style.css">
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
 
 
-    <style>
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
 
-        body {
-            background: var(--mint-50);
-        }
 
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
-        /* HEADER */
 
-        .customer-header {
-            background: white;
-            border-bottom: 1px solid var(--border);
-            padding: 18px 24px;
-        }
+<style>
 
-        .customer-nav {
-            max-width: 1100px;
-            margin: auto;
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+body {
 
-            gap: 20px;
-        }
+    background:
+        var(--mint-50);
 
-        .brand {
-            font-family: "Fraunces", serif;
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: var(--teal-900);
-            text-decoration: none;
-        }
+}
 
-        .nav-right {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
 
-        .nav-right span {
-            color: var(--muted);
-            font-size: .9rem;
-        }
+.my-bookings-page {
 
-        .nav-right a {
-            color: var(--teal-900);
-            font-weight: 600;
-            text-decoration: none;
-        }
+    min-height:
+        100vh;
 
+}
 
-        /* MAIN */
 
-        .bookings-main {
-            max-width: 1000px;
-            margin: auto;
-            padding: 55px 24px 80px;
-        }
+/* =========================
+   HEADER
+========================= */
 
-        .page-heading {
-            margin-bottom: 35px;
-        }
+.account-header {
 
-        .page-heading h1 {
-            font-family: "Fraunces", serif;
-            color: var(--teal-900);
-            font-size: 2.4rem;
-            margin-bottom: 7px;
-        }
+    background:
+        white;
 
-        .page-heading p {
-            color: var(--muted);
-        }
+    border-bottom:
+        1px solid var(--border);
 
+}
 
-        /* BOOKING CARD */
 
-        .booking-card {
-            background: white;
+.account-nav {
 
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
+    max-width:
+        1140px;
 
-            padding: 28px;
+    margin:
+        auto;
 
-            margin-bottom: 22px;
+    padding:
+        18px 20px;
 
-            box-shadow:
-                0 15px 35px -25px rgba(13, 58, 55, .4);
-        }
+    display:
+        flex;
 
+    justify-content:
+        space-between;
 
-        /* TOP */
+    align-items:
+        center;
 
-        .booking-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+    gap:
+        20px;
 
-            gap: 20px;
+}
 
-            margin-bottom: 25px;
-        }
 
-        .booking-number {
-            color: var(--teal-500);
-            font-size: .78rem;
-            font-weight: 700;
-            letter-spacing: .04em;
+.account-brand {
 
-            margin-bottom: 6px;
-        }
+    font-family:
+        "Fraunces",
+        serif;
 
-        .booking-title {
-            font-family: "Fraunces", serif;
-            color: var(--teal-900);
-            font-size: 1.4rem;
-            margin: 0;
-        }
+    font-size:
+        1.5rem;
 
+    font-weight:
+        700;
 
-        /* STATUS */
+    color:
+        var(--teal-900);
 
-        .booking-status {
-            display: inline-block;
+    text-decoration:
+        none;
 
-            padding: 8px 14px;
+}
 
-            border-radius: 999px;
 
-            font-size: .75rem;
-            font-weight: 700;
+.account-actions {
 
-            letter-spacing: .03em;
-        }
+    display:
+        flex;
 
-        .pending {
-            background: #fff4cf;
-            color: #8a6511;
-        }
+    align-items:
+        center;
 
-        .confirmed {
-            background: #e4f5ed;
-            color: #1f684c;
-        }
+    gap:
+        16px;
 
-        .completed {
-            background: #e5eef9;
-            color: #315c8e;
-        }
+}
 
-        .cancelled {
-            background: #fde9e9;
-            color: #983939;
-        }
 
+.account-actions span {
 
-        /* DETAILS */
+    color:
+        var(--muted);
 
-        .booking-details {
-            display: grid;
+    font-size:
+        .9rem;
 
-            grid-template-columns:
-                repeat(3, 1fr);
+}
 
-            gap: 24px;
 
-            border-top: 1px solid var(--border);
+.account-actions a {
 
-            padding-top: 23px;
-        }
+    color:
+        var(--teal-900);
 
-        .detail-label {
-            display: block;
+    text-decoration:
+        none;
 
-            color: var(--muted);
+    font-weight:
+        600;
 
-            font-size: .75rem;
+    font-size:
+        .9rem;
 
-            margin-bottom: 5px;
-        }
+}
 
-        .detail-value {
-            color: var(--ink);
 
-            font-size: .9rem;
+/* =========================
+   PAGE
+========================= */
 
-            font-weight: 600;
-        }
+.bookings-container {
 
+    max-width:
+        1000px;
 
-        /* STATUS MESSAGE */
+    margin:
+        auto;
 
-        .status-message {
-            margin-top: 24px;
+    padding:
+        55px 20px 80px;
 
-            padding: 15px 17px;
+}
 
-            border-radius: var(--radius-sm);
 
-            font-size: .87rem;
-        }
+.page-heading {
 
-        .message-pending {
-            background: #fffaf0;
-            color: #725817;
-        }
+    margin-bottom:
+        30px;
 
-        .message-confirmed {
-            background: #edf8f3;
-            color: #205f49;
-        }
+}
 
-        .message-completed {
-            background: #eef4fa;
-            color: #315b84;
-        }
 
-        .message-cancelled {
-            background: #fdf0f0;
-            color: #8c3838;
-        }
+.page-heading h1 {
 
+    font-family:
+        "Fraunces",
+        serif;
 
-        /* BOTTOM */
+    color:
+        var(--teal-900);
 
-        .booking-bottom {
-            margin-top: 20px;
+    font-size:
+        2.5rem;
 
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+    margin-bottom:
+        8px;
 
-            gap: 15px;
-        }
+}
 
-        .payment {
-            color: var(--muted);
-            font-size: .83rem;
-        }
 
-        .payment strong {
-            color: var(--teal-900);
-            text-transform: capitalize;
-        }
+.page-heading p {
 
-        .book-another {
-            background: var(--teal-900);
+    color:
+        var(--muted);
 
-            color: white;
+}
 
-            padding: 10px 17px;
 
-            border-radius: 8px;
+/* =========================
+   BOOKING CARD
+========================= */
 
-            text-decoration: none;
+.booking-card {
 
-            font-size: .82rem;
-            font-weight: 600;
-        }
+    background:
+        white;
 
+    border-radius:
+        18px;
 
-        /* NO BOOKINGS */
+    padding:
+        28px;
 
-        .empty-state {
-            background: white;
+    margin-bottom:
+        22px;
 
-            border: 1px solid var(--border);
+    box-shadow:
+        var(--shadow);
 
-            border-radius: var(--radius-lg);
+    border:
+        1px solid var(--border);
 
-            padding: 60px 30px;
+}
 
-            text-align: center;
 
-            box-shadow: var(--shadow);
-        }
+.booking-card-top {
 
-        .empty-state h2 {
-            font-family: "Fraunces", serif;
-            color: var(--teal-900);
+    display:
+        flex;
 
-            margin-bottom: 8px;
-        }
+    justify-content:
+        space-between;
 
-        .empty-state p {
-            color: var(--muted);
-            margin-bottom: 25px;
-        }
+    align-items:
+        flex-start;
 
+    gap:
+        20px;
 
-        /* MOBILE */
+    margin-bottom:
+        25px;
 
-        @media (max-width: 700px) {
+}
 
-            .booking-details {
-                grid-template-columns: 1fr 1fr;
-            }
 
-        }
+.booking-number {
 
+    color:
+        var(--muted);
 
-        @media (max-width: 500px) {
+    font-size:
+        .82rem;
 
-            .booking-top {
-                flex-direction: column;
-            }
+    margin-bottom:
+        5px;
 
-            .booking-details {
-                grid-template-columns: 1fr;
-            }
+}
 
-            .booking-bottom {
-                flex-direction: column;
-                align-items: flex-start;
-            }
 
-            .customer-nav {
-                align-items: flex-start;
-            }
+.service-name {
 
-            .nav-right {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 4px;
-            }
+    font-family:
+        "Fraunces",
+        serif;
 
-        }
+    color:
+        var(--teal-900);
 
-    </style>
+    font-size:
+        1.55rem;
+
+}
+
+
+/* =========================
+   STATUS
+========================= */
+
+.booking-status,
+.payment-status {
+
+    display:
+        inline-block;
+
+    padding:
+        8px 14px;
+
+    border-radius:
+        999px;
+
+    font-size:
+        .75rem;
+
+    font-weight:
+        700;
+
+    letter-spacing:
+        .03em;
+
+}
+
+
+.pending {
+
+    background:
+        #fff4cf;
+
+    color:
+        #8a6511;
+
+}
+
+
+.confirmed {
+
+    background:
+        #e4f5ed;
+
+    color:
+        #1f684c;
+
+}
+
+
+.completed {
+
+    background:
+        #e5eef9;
+
+    color:
+        #315c8e;
+
+}
+
+
+.cancelled {
+
+    background:
+        #fde9e9;
+
+    color:
+        #983939;
+
+}
+
+
+.unpaid {
+
+    background:
+        #fde9e9;
+
+    color:
+        #983939;
+
+}
+
+
+.paid {
+
+    background:
+        #e4f5ed;
+
+    color:
+        #1f684c;
+
+}
+
+
+/* =========================
+   BOOKING DETAILS
+========================= */
+
+.booking-details {
+
+    display:
+        grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap:
+        18px 25px;
+
+    margin-bottom:
+        24px;
+
+}
+
+
+.detail-box {
+
+    background:
+        var(--mint-50);
+
+    border-radius:
+        12px;
+
+    padding:
+        15px;
+
+}
+
+
+.detail-label {
+
+    color:
+        var(--muted);
+
+    font-size:
+        .78rem;
+
+    margin-bottom:
+        5px;
+
+}
+
+
+.detail-value {
+
+    color:
+        var(--ink);
+
+    font-weight:
+        600;
+
+    line-height:
+        1.5;
+
+}
+
+
+/* =========================
+   PAYMENT
+========================= */
+
+.payment-box {
+
+    border-top:
+        1px solid var(--border);
+
+    padding-top:
+        22px;
+
+    margin-top:
+        5px;
+
+}
+
+
+.payment-box h3 {
+
+    color:
+        var(--teal-900);
+
+    margin-bottom:
+        15px;
+
+    font-size:
+        1.05rem;
+
+}
+
+
+.payment-row {
+
+    display:
+        flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        space-between;
+
+    gap:
+        15px;
+
+    margin-bottom:
+        12px;
+
+}
+
+
+.payment-label {
+
+    color:
+        var(--muted);
+
+}
+
+
+.payment-method {
+
+    font-weight:
+        700;
+
+    color:
+        var(--teal-900);
+
+}
+
+
+/* =========================
+   MESSAGES
+========================= */
+
+.status-message {
+
+    margin-top:
+        18px;
+
+    padding:
+        14px 16px;
+
+    border-radius:
+        10px;
+
+    background:
+        var(--mint-50);
+
+    color:
+        var(--muted);
+
+    font-size:
+        .9rem;
+
+    line-height:
+        1.5;
+
+}
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+.booking-actions {
+
+    margin-top:
+        22px;
+
+    display:
+        flex;
+
+    gap:
+        12px;
+
+    flex-wrap:
+        wrap;
+
+}
+
+
+.booking-actions .btn {
+
+    display:
+        inline-flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    text-decoration:
+        none;
+
+}
+
+
+.booking-actions .btn-outline {
+
+    background:
+        white;
+
+    color:
+        var(--teal-900);
+
+    border:
+        2px solid var(--teal-900);
+
+    padding:
+        11px 18px;
+
+    border-radius:
+        10px;
+
+    font-weight:
+        600;
+
+}
+
+
+.booking-actions
+.btn-outline:hover {
+
+    background:
+        var(--teal-900);
+
+    color:
+        white;
+
+}
+
+
+/* =========================
+   EMPTY STATE
+========================= */
+
+.empty-state {
+
+    text-align:
+        center;
+
+    background:
+        white;
+
+    border-radius:
+        18px;
+
+    padding:
+        60px 25px;
+
+    box-shadow:
+        var(--shadow);
+
+}
+
+
+.empty-state h2 {
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    color:
+        var(--teal-900);
+
+    margin-bottom:
+        10px;
+
+}
+
+
+.empty-state p {
+
+    color:
+        var(--muted);
+
+    margin-bottom:
+        25px;
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width: 700px) {
+
+    .account-nav,
+    .booking-card-top,
+    .payment-row {
+
+        flex-direction:
+            column;
+
+        align-items:
+            flex-start;
+
+    }
+
+
+    .booking-details {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+}
+
+
+</style>
+
 
 </head>
+
 
 
 <body>
 
 
-<!-- HEADER -->
-
-<header class="customer-header">
-
-    <div class="customer-nav">
+<div class="my-bookings-page">
 
 
-        <a
-            href="index.php"
-            class="brand"
-        >
-            Azura Reef
-        </a>
+<!-- =========================
+     HEADER
+========================= -->
+
+<header class="account-header">
 
 
-        <div class="nav-right">
-
-            <span>
-
-                Hi,
-                <?= htmlspecialchars(
-                    $_SESSION["first_name"] ?? "Customer"
-                ) ?>
-
-            </span>
+<div class="account-nav">
 
 
-            <a href="index.php">
-                Home
-            </a>
+<a
+    href="index.php"
+    class="account-brand"
+>
+Azura Reef
+</a>
 
 
-            <a href="logout.php">
-                Log Out
-            </a>
-
-        </div>
+<div class="account-actions">
 
 
-    </div>
+<span>
+
+Hi,
+
+<?= htmlspecialchars(
+    $_SESSION["first_name"]
+    ?? "Customer"
+) ?>
+
+</span>
+
+
+<a href="index.php">
+Home
+</a>
+
+
+<a href="logout.php">
+Log Out
+</a>
+
+
+</div>
+
+
+</div>
+
 
 </header>
 
 
 
-<!-- MAIN -->
+<!-- =========================
+     MAIN
+========================= -->
 
-<main class="bookings-main">
+<main class="bookings-container">
 
 
-    <div class="page-heading">
+<div class="page-heading">
 
-        <h1>
-            My Bookings
-        </h1>
 
-        <p>
-            Track your reservations and booking status.
-        </p>
+<h1>
+My Bookings
+</h1>
 
-    </div>
 
+<p>
+View your booking and payment status.
+</p>
 
 
-    <?php if ($bookings->num_rows > 0): ?>
+</div>
 
 
-        <?php while ($booking = $bookings->fetch_assoc()): ?>
 
+<?php if (
+    $bookings->num_rows > 0
+): ?>
 
-            <?php
 
-            $status = strtolower(
-                $booking["booking_status"]
-            );
 
-            ?>
+<?php while (
+    $booking =
+        $bookings->fetch_assoc()
+): ?>
 
 
-            <article class="booking-card">
 
+<?php
 
-                <!-- TOP -->
 
-                <div class="booking-top">
+/* =========================
+   BOOKING STATUS
+========================= */
 
+$booking_status =
+    strtolower(
+        $booking["booking_status"]
+        ?? "pending"
+    );
 
-                    <div>
 
+/* =========================
+   PAYMENT STATUS
+========================= */
 
-                        <div class="booking-number">
+$payment_status =
+    strtolower(
+        $booking["payment_status"]
+        ?? "unpaid"
+    );
 
-                            BOOKING
-                            AZR-<?= str_pad(
-                                $booking["id"],
-                                4,
-                                "0",
-                                STR_PAD_LEFT
-                            ) ?>
 
-                        </div>
+/* =========================
+   PAYMENT METHOD
+========================= */
 
+$payment_method =
+    strtolower(
+        $booking["payment_method"]
+        ?? "cash"
+    );
 
-                        <h2 class="booking-title">
 
-                            <?= htmlspecialchars(
-                                $booking["service_name"]
-                            ) ?>
+if (
+    $payment_method === "gcash"
+) {
 
-                        </h2>
+    $payment_method_label =
+        "GCash";
 
+} elseif (
+    $payment_method === "card"
+) {
 
-                    </div>
+    $payment_method_label =
+        "Credit / Debit Card";
 
+} else {
 
+    $payment_method_label =
+        "Cash";
 
-                    <!-- BOOKING STATUS -->
+}
 
-                    <span
-                        class="booking-status <?= htmlspecialchars($status) ?>"
-                    >
 
-                        <?= strtoupper(
-                            htmlspecialchars($status)
-                        ) ?>
+/* =========================
+   BOOKING MESSAGE
+========================= */
 
-                    </span>
+if (
+    $booking_status ===
+    "confirmed"
+) {
 
+    $status_message =
+        "✓ Your booking has been confirmed by Azura Reef.";
 
-                </div>
+} elseif (
+    $booking_status ===
+    "completed"
+) {
 
+    $status_message =
+        "✓ This booking has been completed.";
 
+} elseif (
+    $booking_status ===
+    "cancelled"
+) {
 
-                <!-- DETAILS -->
+    $status_message =
+        "This booking has been cancelled.";
 
-                <div class="booking-details">
+} else {
 
+    $status_message =
+        "Your booking has been received and is waiting for confirmation from Azura Reef.";
 
-                    <div>
+}
 
-                        <span class="detail-label">
-                            Service Type
-                        </span>
 
-                        <span class="detail-value">
+/* =========================
+   PAYMENT MESSAGE
+========================= */
 
-                            <?= htmlspecialchars(
-                                ucfirst(
-                                    $booking["service_type"]
-                                )
-                            ) ?>
+if (
+    $payment_method === "gcash" &&
+    $payment_status === "pending"
+) {
 
-                        </span>
+    $payment_message =
+        "Your GCash payment proof has been submitted and is waiting for admin verification.";
 
-                    </div>
+} elseif (
+    $payment_method === "gcash" &&
+    $payment_status === "paid"
+) {
 
+    $payment_message =
+        "✓ Your GCash payment has been verified.";
 
+} elseif (
+    $payment_method === "cash" &&
+    $payment_status === "paid"
+) {
 
-                    <div>
+    $payment_message =
+        "✓ Your cash payment has been marked as paid.";
 
-                        <span class="detail-label">
-                            Date
-                        </span>
+} elseif (
+    $payment_method === "cash"
+) {
 
-                        <span class="detail-value">
+    $payment_message =
+        "Payment will be made in cash.";
 
-                            <?= htmlspecialchars(
-                                $booking["booking_date"]
-                            ) ?>
+} elseif (
+    $payment_method === "card" &&
+    $payment_status === "paid"
+) {
 
-                        </span>
+    $payment_message =
+        "✓ Demo card payment completed.";
 
-                    </div>
+} else {
 
+    $payment_message =
+        "Payment status is currently "
+        . $payment_status
+        . ".";
 
+}
 
-                    <div>
 
-                        <span class="detail-label">
-                            Time
-                        </span>
+?>
 
-                        <span class="detail-value">
 
-                            <?= htmlspecialchars(
-                                $booking["booking_time"]
-                            ) ?>
 
-                        </span>
+<!-- =========================
+     ONE BOOKING CARD
+========================= -->
 
-                    </div>
+<div class="booking-card">
 
 
+<!-- TOP -->
 
-                    <div>
+<div class="booking-card-top">
 
-                        <span class="detail-label">
-                            Guests
-                        </span>
 
-                        <span class="detail-value">
+<div>
 
-                            <?= (int) $booking["guests"] ?>
 
-                        </span>
+<div class="booking-number">
 
-                    </div>
+Booking No.
 
+AZR-<?= str_pad(
+    $booking["id"],
+    4,
+    "0",
+    STR_PAD_LEFT
+) ?>
 
+</div>
 
-                    <div>
 
-                        <span class="detail-label">
-                            Equipment
-                        </span>
+<div class="service-name">
 
-                        <span class="detail-value">
+<?= htmlspecialchars(
+    $booking["service_name"]
+) ?>
 
-                            <?= htmlspecialchars(
-                                ucfirst(
-                                    $booking["equipment"]
-                                )
-                            ) ?>
+</div>
 
-                        </span>
 
-                    </div>
+</div>
 
 
 
-                    <div>
+<span
+    class="
+        booking-status
+        <?= htmlspecialchars(
+            $booking_status
+        ) ?>
+    "
+>
 
-                        <span class="detail-label">
-                            Certification
-                        </span>
+<?= strtoupper(
+    htmlspecialchars(
+        $booking_status
+    )
+) ?>
 
-                        <span class="detail-value">
+</span>
 
-                            <?= htmlspecialchars(
-                                $booking["certification"]
-                            ) ?>
 
-                        </span>
+</div>
 
-                    </div>
 
 
-                </div>
+<!-- =========================
+     BOOKING DETAILS
+========================= -->
 
+<div class="booking-details">
 
 
-                <!-- STATUS EXPLANATION -->
+<!-- DATE -->
 
-                <?php if ($status === "pending"): ?>
+<div class="detail-box">
 
-                    <div
-                        class="
-                            status-message
-                            message-pending
-                        "
-                    >
 
-                        Your booking has been received and is
-                        waiting for confirmation from Azura Reef.
+<div class="detail-label">
+Booking Date
+</div>
 
-                    </div>
 
+<div class="detail-value">
 
-                <?php elseif ($status === "confirmed"): ?>
+<?= htmlspecialchars(
+    $booking["booking_date"]
+) ?>
 
-                    <div
-                        class="
-                            status-message
-                            message-confirmed
-                        "
-                    >
+</div>
 
-                        ✓ Your booking has been confirmed by
-                        Azura Reef.
 
-                    </div>
+</div>
 
 
-                <?php elseif ($status === "completed"): ?>
 
-                    <div
-                        class="
-                            status-message
-                            message-completed
-                        "
-                    >
+<!-- TIME -->
 
-                        ✓ This booking has been completed.
+<div class="detail-box">
 
-                    </div>
 
+<div class="detail-label">
+Booking Time
+</div>
 
-                <?php elseif ($status === "cancelled"): ?>
 
-                    <div
-                        class="
-                            status-message
-                            message-cancelled
-                        "
-                    >
+<div class="detail-value">
 
-                        This booking has been cancelled.
+<?= htmlspecialchars(
+    $booking["booking_time"]
+) ?>
 
-                    </div>
+</div>
 
 
-                <?php endif; ?>
+</div>
 
 
 
-                <!-- BOTTOM -->
+<!-- GUESTS -->
 
-                <div class="booking-bottom">
+<div class="detail-box">
 
 
-                    <div class="payment">
+<div class="detail-label">
+Guests
+</div>
 
-                        Payment Status:
 
-                        <strong>
+<div class="detail-value">
 
-                            <?= htmlspecialchars(
-                                $booking["payment_status"]
-                            ) ?>
+<?= htmlspecialchars(
+    $booking["guests"]
+) ?>
 
-                        </strong>
+</div>
 
-                    </div>
 
+</div>
 
-                    <a
-                        href="booking.php"
-                        class="book-another"
-                    >
-                        Book Another
-                    </a>
 
 
-                </div>
+<!-- EQUIPMENT -->
 
+<div class="detail-box">
 
-            </article>
 
+<div class="detail-label">
+Equipment
+</div>
 
-        <?php endwhile; ?>
 
+<div class="detail-value">
 
-    <?php else: ?>
 
+<?php if (
+    !empty(
+        $booking["rental_gear"]
+    )
+): ?>
 
-        <div class="empty-state">
 
+<?= htmlspecialchars(
+    $booking["rental_gear"]
+) ?>
 
-            <h2>
-                No bookings yet
-            </h2>
 
+<?php elseif (
+    ($booking["equipment"] ?? "")
+    === "Yes"
+): ?>
 
-            <p>
-                You haven't made a reservation yet.
-            </p>
 
+Rental equipment requested
 
-            <a
-                href="booking.php"
-                class="btn btn-primary"
-            >
-                Book a Dive
-            </a>
 
+<?php else: ?>
 
-        </div>
 
+I have my own equipment
 
-    <?php endif; ?>
+
+<?php endif; ?>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<!-- =========================
+     PAYMENT
+========================= -->
+
+<div class="payment-box">
+
+
+<h3>
+Payment Information
+</h3>
+
+
+
+<div class="payment-row">
+
+
+<span class="payment-label">
+Payment Method
+</span>
+
+
+<span class="payment-method">
+
+<?= htmlspecialchars(
+    $payment_method_label
+) ?>
+
+</span>
+
+
+</div>
+
+
+
+<div class="payment-row">
+
+
+<span class="payment-label">
+Payment Status
+</span>
+
+
+<span
+    class="
+        payment-status
+        <?= htmlspecialchars(
+            $payment_status
+        ) ?>
+    "
+>
+
+<?= strtoupper(
+    htmlspecialchars(
+        $payment_status
+    )
+) ?>
+
+</span>
+
+
+</div>
+
+
+
+<div class="status-message">
+
+<?= htmlspecialchars(
+    $payment_message
+) ?>
+
+</div>
+
+
+</div>
+
+
+
+<!-- =========================
+     BOOKING STATUS MESSAGE
+========================= -->
+
+<div class="status-message">
+
+
+<strong>
+Booking Status:
+</strong>
+
+<br>
+
+
+<?= htmlspecialchars(
+    $status_message
+) ?>
+
+
+</div>
+
+
+
+<!-- =========================
+     ACTIONS
+========================= -->
+
+<div class="booking-actions">
+
+
+<a
+    href="confirmation.php?id=<?= (int) $booking["id"] ?>"
+    class="btn btn-outline"
+>
+View Receipt
+</a>
+
+
+<a
+    href="booking.php"
+    class="btn btn-dark"
+>
+Book Another
+</a>
+
+
+</div>
+
+
+</div>
+
+<!-- END ONE BOOKING CARD -->
+
+
+
+<?php endwhile; ?>
+
+
+
+<?php else: ?>
+
+
+
+<!-- =========================
+     NO BOOKINGS
+========================= -->
+
+<div class="empty-state">
+
+
+<h2>
+No Bookings Yet
+</h2>
+
+
+<p>
+You haven't made any bookings yet.
+</p>
+
+
+<a
+    href="booking.php"
+    class="btn btn-dark"
+>
+Book Your First Dive
+</a>
+
+
+</div>
+
+
+
+<?php endif; ?>
 
 
 </main>
 
 
+</div>
+
+
 </body>
+
 
 </html>
 
+
 <?php
+
+
 $stmt->close();
+
+$conn->close();
+
+
 ?>

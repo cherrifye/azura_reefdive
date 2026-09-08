@@ -444,7 +444,7 @@ $dives = [
 
 
                         <a
-                            href="booking.php?dive=<?= urlencode($dive['name']) ?>"
+                            href="booking.php?type=dive&dive=<?= urlencode($dive['name']) ?>"
                             class="btn btn-primary"
                         >
                             Book This Dive

@@ -79,11 +79,32 @@ $testimonial = [
 ];
 
 $quick_links = [
-    'Dive Sites',
-    'PADI Courses',
-    'Pricing',
-    'Equipment',
-    'FAQ'
+
+    [
+        'name' => 'Dive Sites',
+        'page' => 'schedule.php'
+    ],
+
+    [
+        'name' => 'PADI Courses',
+        'page' => 'courses.php'
+    ],
+
+    [
+        'name' => 'Pricing',
+        'page' => 'pricing.php'
+    ],
+
+    [
+        'name' => 'Equipment',
+        'page' => 'pricing.php'
+    ],
+
+    [
+        'name' => 'FAQ',
+        'page' => 'faq.php'
+    ]
+
 ];
 
 $contact = [
@@ -1014,7 +1035,7 @@ function icon_svg($name)
 
 
                     <li>
-                        <a href="#about">
+                        <a href="faq.php">
                             FAQ
                         </a>
                     </li>

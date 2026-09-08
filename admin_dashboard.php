@@ -1,8 +1,10 @@
 <?php
 session_start();
+
 require_once "db.php";
 
 /* Admin only */
+
 if (
     !isset($_SESSION["user_id"]) ||
     ($_SESSION["role"] ?? "") !== "admin"
@@ -11,63 +13,64 @@ if (
     exit;
 }
 
-/* Dashboard totals */
 
-$totalBookings = 0;
-$pendingBookings = 0;
-$confirmedBookings = 0;
-$totalCustomers = 0;
+/* Dashboard counts */
 
-/* Total bookings */
-$result = $conn->query("SELECT COUNT(*) AS total FROM bookings");
+$totalBookingsResult =
+    $conn->query(
+        "SELECT COUNT(*) AS total
+         FROM bookings"
+    );
 
-if ($result) {
-    $row = $result->fetch_assoc();
-    $totalBookings = $row["total"];
-}
+$totalBookings =
+    $totalBookingsResult
+        ->fetch_assoc()["total"];
 
-/* Pending bookings */
-$result = $conn->query(
-    "SELECT COUNT(*) AS total
-     FROM bookings
-     WHERE booking_status = 'pending'"
-);
 
-if ($result) {
-    $row = $result->fetch_assoc();
-    $pendingBookings = $row["total"];
-}
+$pendingBookingsResult =
+    $conn->query(
+        "SELECT COUNT(*) AS total
+         FROM bookings
+         WHERE booking_status = 'pending'"
+    );
 
-/* Confirmed bookings */
-$result = $conn->query(
-    "SELECT COUNT(*) AS total
-     FROM bookings
-     WHERE booking_status = 'confirmed'"
-);
+$pendingBookings =
+    $pendingBookingsResult
+        ->fetch_assoc()["total"];
 
-if ($result) {
-    $row = $result->fetch_assoc();
-    $confirmedBookings = $row["total"];
-}
 
-/* Total customers */
-$result = $conn->query(
-    "SELECT COUNT(*) AS total
-     FROM users
-     WHERE role = 'customer'"
-);
+$confirmedBookingsResult =
+    $conn->query(
+        "SELECT COUNT(*) AS total
+         FROM bookings
+         WHERE booking_status = 'confirmed'"
+    );
 
-if ($result) {
-    $row = $result->fetch_assoc();
-    $totalCustomers = $row["total"];
-}
+$confirmedBookings =
+    $confirmedBookingsResult
+        ->fetch_assoc()["total"];
+
+
+$totalCustomersResult =
+    $conn->query(
+        "SELECT COUNT(*) AS total
+         FROM users
+         WHERE role = 'customer'"
+    );
+
+$totalCustomers =
+    $totalCustomersResult
+        ->fetch_assoc()["total"];
+
 
 /* Get bookings */
-$bookings = $conn->query(
-    "SELECT *
-     FROM bookings
-     ORDER BY created_at DESC"
-);
+
+$bookings =
+    $conn->query(
+        "SELECT *
+         FROM bookings
+         ORDER BY created_at DESC"
+    );
 ?>
 
 <!DOCTYPE html>
@@ -75,638 +78,918 @@ $bookings = $conn->query(
 
 <head>
 
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <title>Admin Dashboard | Azura Reef Dive</title>
+<title>
+Admin Dashboard | Azura Reef
+</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
 
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
 
-    <link rel="stylesheet" href="style.css">
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
-    <style>
+<style>
 
-        body {
-            background: var(--mint-50);
-        }
+body {
+    background: var(--mint-50);
+}
 
-        .admin-header {
-            background: var(--teal-900);
-            color: white;
-            padding: 20px 24px;
-        }
+.admin-header {
+    background: white;
+    border-bottom: 1px solid var(--border);
+}
 
-        .admin-nav {
-            max-width: 1250px;
-            margin: auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 20px;
-        }
+.admin-nav {
+    max-width: 1300px;
+    margin: auto;
+    padding: 18px 20px;
 
-        .admin-brand h2 {
-            color: white;
-            margin: 0;
-            font-size: 1.4rem;
-        }
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 
-        .admin-brand span {
-            display: block;
-            color: var(--muted-light);
-            font-size: .8rem;
-            margin-top: 3px;
-        }
+.admin-brand {
+    font-family: "Fraunces", serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--teal-900);
+    text-decoration: none;
+}
 
-        .admin-user {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
+.admin-links {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
 
-        .admin-user span {
-            color: var(--muted-light);
-            font-size: .9rem;
-        }
+.admin-links span {
+    color: var(--muted);
+    font-size: .9rem;
+}
 
-        .admin-user a {
-            color: white;
-            font-weight: 600;
-        }
+.admin-links a {
+    color: var(--teal-900);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: .9rem;
+}
 
-        .admin-main {
-            max-width: 1250px;
-            margin: auto;
-            padding: 55px 24px;
-        }
+.dashboard {
+    max-width: 1300px;
+    margin: auto;
+    padding: 45px 20px 80px;
+}
 
-        .dashboard-heading {
-            margin-bottom: 32px;
-        }
+.dashboard-title {
+    margin-bottom: 28px;
+}
 
-        .dashboard-heading h1 {
-            color: var(--teal-900);
-            font-size: 2.2rem;
-            margin-bottom: 7px;
-        }
+.dashboard-title h1 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+}
 
-        .dashboard-heading p {
-            color: var(--muted);
-        }
+.dashboard-title p {
+    color: var(--muted);
+}
 
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            margin-bottom: 45px;
-        }
+.stats {
+    display: grid;
+    grid-template-columns:
+        repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 35px;
+}
 
-        .stat-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-md);
-            padding: 25px;
-            box-shadow: 0 10px 30px -22px rgba(13,58,55,.5);
-        }
+.stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 22px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
 
-        .stat-card span {
-            color: var(--muted);
-            font-size: .82rem;
-        }
+.stat-label {
+    color: var(--muted);
+    font-size: .85rem;
+    margin-bottom: 8px;
+}
 
-        .stat-card strong {
-            display: block;
-            font-family: 'Fraunces', serif;
-            color: var(--teal-900);
-            font-size: 2.1rem;
-            margin-top: 8px;
-        }
+.stat-number {
+    font-family: "Fraunces", serif;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--teal-900);
+}
 
-        .bookings-section {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
+.table-card {
+    background: white;
+    border-radius: 18px;
+    padding: 22px;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    overflow-x: auto;
+}
 
-        .section-top {
-            padding: 25px 28px;
-            border-bottom: 1px solid var(--border);
-        }
+.table-card h2 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    margin-bottom: 20px;
+}
 
-        .section-top h2 {
-            color: var(--teal-900);
-            margin-bottom: 4px;
-        }
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 1150px;
+}
 
-        .section-top p {
-            color: var(--muted);
-            font-size: .9rem;
-        }
+th {
+    text-align: left;
+    padding: 13px;
+    font-size: .78rem;
+    color: var(--muted);
+    background: var(--mint-50);
+}
 
-        .table-wrapper {
-            width: 100%;
-            overflow-x: auto;
-        }
+td {
+    padding: 14px 13px;
+    border-bottom:
+        1px solid var(--border);
+    vertical-align: top;
+    font-size: .88rem;
+}
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 1000px;
-        }
+.booking-code {
+    font-weight: 700;
+    color: var(--teal-900);
+}
 
-        th {
-            background: var(--mint-50);
-            color: var(--teal-900);
-            text-align: left;
-            padding: 14px 15px;
-            font-size: .78rem;
-            text-transform: uppercase;
-            letter-spacing: .04em;
-        }
+.status-badge {
+    display: inline-block;
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+}
 
-        td {
-            padding: 15px;
-            border-top: 1px solid var(--border);
-            color: var(--ink);
-            font-size: .87rem;
-            vertical-align: middle;
-        }
+.pending {
+    background: #fff4cf;
+    color: #8a6511;
+}
 
-        .booking-code {
-            color: var(--teal-700);
-            font-weight: 700;
-        }
+.confirmed {
+    background: #e4f5ed;
+    color: #1f684c;
+}
 
-        .status {
-            display: inline-block;
-            padding: 6px 10px;
-            border-radius: 999px;
-            font-size: .75rem;
-            font-weight: 700;
-            text-transform: capitalize;
-        }
+.completed {
+    background: #e5eef9;
+    color: #315c8e;
+}
 
-        .status-pending {
-            background: #fff6dc;
-            color: #8a6511;
-        }
+.cancelled {
+    background: #fde9e9;
+    color: #983939;
+}
 
-        .status-confirmed {
-            background: #e8f5ef;
-            color: #21694f;
-        }
+.unpaid {
+    background: #fde9e9;
+    color: #983939;
+}
 
-        .status-completed {
-            background: #e8effa;
-            color: #315b91;
-        }
+.paid {
+    background: #e4f5ed;
+    color: #1f684c;
+}
 
-        .status-cancelled {
-            background: #fff0f0;
-            color: #9a3434;
-        }
+.action-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
 
-        .booking-actions {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-        }
+.action-group form {
+    margin: 0;
+}
 
-        .action-button {
-            border: none;
-            cursor: pointer;
-            padding: 7px 10px;
-            border-radius: 7px;
-            font-family: Inter, sans-serif;
-            font-size: .75rem;
-            font-weight: 600;
-        }
+.small-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 8px 10px;
+    cursor: pointer;
+    font-family: "Inter", sans-serif;
+    font-size: .76rem;
+    font-weight: 600;
+}
 
-        .confirm-button {
-            background: var(--teal-900);
-            color: white;
-        }
+.confirm-btn {
+    background: var(--teal-900);
+    color: white;
+}
 
-        .complete-button {
-            background: var(--teal-500);
-            color: white;
-        }
+.complete-btn {
+    background: #315c8e;
+    color: white;
+}
 
-        .cancel-button {
-            background: #f5eded;
-            color: #8c3030;
-        }
+.cancel-btn {
+    background: #983939;
+    color: white;
+}
 
-        .empty-message {
-            padding: 50px 25px;
-            text-align: center;
-            color: var(--muted);
-        }
+.paid-btn {
+    background: #1f684c;
+    color: white;
+}
 
-        @media (max-width: 950px) {
+.proof-btn {
+    display: inline-block;
+    text-decoration: none;
+    background: var(--teal-500);
+    color: white;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: .76rem;
+    font-weight: 600;
+}
 
-            .stats-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
+.payment-method {
+    font-weight: 600;
+    color: var(--teal-900);
+    margin-bottom: 6px;
+}
 
-        @media (max-width: 600px) {
+.payment-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 7px;
+}
 
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
+.no-bookings {
+    padding: 35px;
+    text-align: center;
+    color: var(--muted);
+}
 
-            .admin-nav {
-                align-items: flex-start;
-            }
+@media(max-width: 900px) {
 
-            .admin-user {
-                flex-direction: column;
-                align-items: flex-end;
-                gap: 4px;
-            }
-        }
+    .stats {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
 
-    </style>
+}
+
+@media(max-width: 600px) {
+
+    .stats {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-nav {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+}
+
+</style>
 
 </head>
 
 <body>
 
+
 <header class="admin-header">
 
-    <div class="admin-nav">
+<div class="admin-nav">
 
-        <div class="admin-brand">
+<a
+    href="admin_dashboard.php"
+    class="admin-brand"
+>
+Azura Reef Admin
+</a>
 
-            <h2>
-                Azura Reef Admin
-            </h2>
+<div class="admin-links">
 
-            <span>
-                Management Dashboard
-            </span>
+<span>
+Hi,
+<?= htmlspecialchars(
+    $_SESSION["first_name"]
+    ?? "Admin"
+) ?>
+</span>
 
-        </div>
+<a href="index.php">
+Website
+</a>
 
-        <div class="admin-user">
+<a href="logout.php">
+Log Out
+</a>
 
-            <span>
-                Hi, <?= htmlspecialchars($_SESSION["first_name"] ?? "Admin") ?>
-            </span>
+</div>
 
-            <a href="logout.php">
-                Log Out
-            </a>
-
-        </div>
-
-    </div>
+</div>
 
 </header>
 
 
-<main class="admin-main">
-
-    <div class="dashboard-heading">
-
-        <h1>Dashboard</h1>
-
-        <p>
-            View and manage customer bookings.
-        </p>
-
-    </div>
+<main class="dashboard">
 
 
-    <div class="stats-grid">
+<div class="dashboard-title">
 
-        <div class="stat-card">
+<h1>
+Admin Dashboard
+</h1>
 
-            <span>
-                Total Bookings
-            </span>
+<p>
+Manage bookings and customer payments.
+</p>
 
-            <strong>
-                <?= $totalBookings ?>
-            </strong>
+</div>
+
+
+
+<div class="stats">
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+Total Bookings
+</div>
+
+<div class="stat-number">
+<?= $totalBookings ?>
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+Pending Bookings
+</div>
+
+<div class="stat-number">
+<?= $pendingBookings ?>
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+Confirmed Bookings
+</div>
+
+<div class="stat-number">
+<?= $confirmedBookings ?>
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-label">
+Customers
+</div>
+
+<div class="stat-number">
+<?= $totalCustomers ?>
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="table-card">
+
+<h2>
+All Bookings
+</h2>
+
+
+<?php if (
+    $bookings &&
+    $bookings->num_rows > 0
+): ?>
+
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Booking
+</th>
+
+<th>
+Customer
+</th>
+
+<th>
+Service
+</th>
+
+<th>
+Schedule
+</th>
+
+<th>
+Guests
+</th>
+
+<th>
+Payment
+</th>
+
+<th>
+Booking Status
+</th>
+
+<th>
+Actions
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody>
+
+
+<?php while (
+    $booking =
+    $bookings->fetch_assoc()
+): ?>
+
+
+<?php
+
+$booking_status =
+    strtolower(
+        $booking["booking_status"]
+        ?? "pending"
+    );
+
+$payment_status =
+    strtolower(
+        $booking["payment_status"]
+        ?? "unpaid"
+    );
+
+$payment_method =
+    strtolower(
+        $booking["payment_method"]
+        ?? "cash"
+    );
+
+
+if ($payment_method === "gcash") {
+
+    $payment_label = "GCash";
+
+} elseif ($payment_method === "card") {
+
+    $payment_label =
+        "Credit / Debit Card";
+
+} else {
+
+    $payment_label = "Cash";
+
+}
+
+?>
+
+
+<tr>
+
+
+<td>
+
+<div class="booking-code">
+
+AZR-<?= str_pad(
+    $booking["id"],
+    4,
+    "0",
+    STR_PAD_LEFT
+) ?>
+
+</div>
+
+</td>
+
+
+<td>
+
+<strong>
+<?= htmlspecialchars(
+    $booking["full_name"]
+) ?>
+</strong>
+
+<br>
+
+<small>
+<?= htmlspecialchars(
+    $booking["email"]
+) ?>
+</small>
+
+</td>
+
+<td>
+
+    <strong>
+        <?= htmlspecialchars(
+            $booking["service_name"]
+        ) ?>
+    </strong>
+
+    <br>
+
+    <small>
+        <?= htmlspecialchars(
+            $booking["service_type"]
+        ) ?>
+    </small>
+
+
+    <?php if (!empty($booking["rental_gear"])): ?>
+
+        <div style="margin-top:8px;">
+
+            <strong>Rental Gear:</strong>
+
+            <br>
+
+            <?= htmlspecialchars(
+                $booking["rental_gear"]
+            ) ?>
 
         </div>
 
+    <?php endif; ?>
 
-        <div class="stat-card">
+</td>
 
-            <span>
-                Pending
-            </span>
+<td>
 
-            <strong>
-                <?= $pendingBookings ?>
-            </strong>
+<?= htmlspecialchars(
+    $booking["booking_date"]
+) ?>
 
-        </div>
+<br>
 
+<?= htmlspecialchars(
+    $booking["booking_time"]
+) ?>
 
-        <div class="stat-card">
+</td>
 
-            <span>
-                Confirmed
-            </span>
 
-            <strong>
-                <?= $confirmedBookings ?>
-            </strong>
+<td>
 
-        </div>
+<?= htmlspecialchars(
+    $booking["guests"]
+) ?>
 
+</td>
 
-        <div class="stat-card">
 
-            <span>
-                Customers
-            </span>
 
-            <strong>
-                <?= $totalCustomers ?>
-            </strong>
+<td>
 
-        </div>
+<div class="payment-stack">
 
-    </div>
+<div class="payment-method">
 
+<?= htmlspecialchars(
+    $payment_label
+) ?>
 
-    <section class="bookings-section">
+</div>
 
-        <div class="section-top">
 
-            <h2>
-                Customer Bookings
-            </h2>
+<span
+class="status-badge <?= htmlspecialchars(
+    $payment_status
+) ?>"
+>
 
-            <p>
-                Review submitted bookings and update their status.
-            </p>
+<?= strtoupper(
+    htmlspecialchars(
+        $payment_status
+    )
+) ?>
 
-        </div>
+</span>
 
 
-        <?php if ($bookings && $bookings->num_rows > 0): ?>
+<?php if (
+    $payment_method === "gcash" &&
+    !empty(
+        $booking["payment_proof"]
+    )
+): ?>
 
-            <div class="table-wrapper">
+<a
+    href="<?= htmlspecialchars(
+        $booking["payment_proof"]
+    ) ?>"
+    target="_blank"
+    class="proof-btn"
+>
+View Payment Proof
+</a>
 
-                <table>
+<?php endif; ?>
 
-                    <thead>
 
-                        <tr>
+<?php if (
+    (
+        $payment_method === "gcash" ||
+        $payment_method === "cash"
+    ) &&
+    $payment_status !== "paid"
+): ?>
 
-                            <th>Booking</th>
+<form
+    method="POST"
+    action="update_payment.php"
+>
 
-                            <th>Customer</th>
+<input
+    type="hidden"
+    name="booking_id"
+    value="<?= (int)
+        $booking["id"]
+    ?>"
+>
 
-                            <th>Service</th>
+<input
+    type="hidden"
+    name="payment_status"
+    value="paid"
+>
 
-                            <th>Date</th>
+<button
+    type="submit"
+    class="small-btn paid-btn"
+>
+Mark as Paid
+</button>
 
-                            <th>Guests</th>
+</form>
 
-                            <th>Status</th>
+<?php endif; ?>
 
-                            <th>Actions</th>
 
-                        </tr>
+</div>
 
-                    </thead>
+</td>
 
 
-                    <tbody>
 
-                    <?php while ($booking = $bookings->fetch_assoc()): ?>
+<td>
 
-                        <tr>
+<span
+class="status-badge <?= htmlspecialchars(
+    $booking_status
+) ?>"
+>
 
-                            <td>
+<?= strtoupper(
+    htmlspecialchars(
+        $booking_status
+    )
+) ?>
 
-                                <span class="booking-code">
+</span>
 
-                                    AZR-<?= str_pad(
-                                        $booking["id"],
-                                        4,
-                                        "0",
-                                        STR_PAD_LEFT
-                                    ) ?>
+</td>
 
-                                </span>
 
-                            </td>
 
+<td>
 
-                            <td>
+<div class="action-group">
 
-                                <strong>
-                                    <?= htmlspecialchars($booking["full_name"]) ?>
-                                </strong>
 
-                                <br>
+<?php if (
+    $booking_status === "pending"
+): ?>
 
-                                <small>
-                                    <?= htmlspecialchars($booking["email"]) ?>
-                                </small>
+<form
+    method="POST"
+    action="update_booking.php"
+>
 
-                            </td>
+<input
+    type="hidden"
+    name="booking_id"
+    value="<?= (int)
+        $booking["id"]
+    ?>"
+>
 
+<input
+    type="hidden"
+    name="status"
+    value="confirmed"
+>
 
-                            <td>
+<button
+    type="submit"
+    class="small-btn confirm-btn"
+>
+Confirm
+</button>
 
-                                <?= htmlspecialchars($booking["service_name"]) ?>
+</form>
 
-                                <br>
 
-                                <small>
-                                    <?= htmlspecialchars(
-                                        ucfirst($booking["service_type"])
-                                    ) ?>
-                                </small>
+<form
+    method="POST"
+    action="update_booking.php"
+>
 
-                            </td>
+<input
+    type="hidden"
+    name="booking_id"
+    value="<?= (int)
+        $booking["id"]
+    ?>"
+>
 
+<input
+    type="hidden"
+    name="status"
+    value="cancelled"
+>
 
-                            <td>
+<button
+    type="submit"
+    class="small-btn cancel-btn"
+>
+Cancel
+</button>
 
-                                <?= htmlspecialchars($booking["booking_date"]) ?>
+</form>
 
-                                <br>
 
-                                <small>
-                                    <?= htmlspecialchars($booking["booking_time"]) ?>
-                                </small>
+<?php elseif (
+    $booking_status === "confirmed"
+): ?>
 
-                            </td>
 
+<form
+    method="POST"
+    action="update_booking.php"
+>
 
-                            <td>
-                                <?= (int) $booking["guests"] ?>
-                            </td>
+<input
+    type="hidden"
+    name="booking_id"
+    value="<?= (int)
+        $booking["id"]
+    ?>"
+>
 
+<input
+    type="hidden"
+    name="status"
+    value="completed"
+>
 
-                            <td>
+<button
+    type="submit"
+    class="small-btn complete-btn"
+>
+Complete
+</button>
 
-                                <span
-                                    class="status status-<?= htmlspecialchars(
-                                        $booking["booking_status"]
-                                    ) ?>"
-                                >
+</form>
 
-                                    <?= htmlspecialchars(
-                                        ucfirst($booking["booking_status"])
-                                    ) ?>
 
-                                </span>
+<form
+    method="POST"
+    action="update_booking.php"
+>
 
-                            </td>
+<input
+    type="hidden"
+    name="booking_id"
+    value="<?= (int)
+        $booking["id"]
+    ?>"
+>
 
+<input
+    type="hidden"
+    name="status"
+    value="cancelled"
+>
 
-                            <td>
+<button
+    type="submit"
+    class="small-btn cancel-btn"
+>
+Cancel
+</button>
 
-                                <div class="booking-actions">
+</form>
 
 
-                                    <?php if (
-                                        $booking["booking_status"] === "pending"
-                                    ): ?>
+<?php else: ?>
 
-                                        <form
-                                            method="POST"
-                                            action="update_booking.php"
-                                        >
+—
 
-                                            <input
-                                                type="hidden"
-                                                name="booking_id"
-                                                value="<?= $booking["id"] ?>"
-                                            >
+<?php endif; ?>
 
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="confirmed"
-                                            >
 
-                                            <button
-                                                type="submit"
-                                                class="action-button confirm-button"
-                                            >
-                                                Confirm
-                                            </button>
+</div>
 
-                                        </form>
+</td>
 
-                                    <?php endif; ?>
 
+</tr>
 
-                                    <?php if (
-                                        $booking["booking_status"] === "confirmed"
-                                    ): ?>
 
-                                        <form
-                                            method="POST"
-                                            action="update_booking.php"
-                                        >
+<?php endwhile; ?>
 
-                                            <input
-                                                type="hidden"
-                                                name="booking_id"
-                                                value="<?= $booking["id"] ?>"
-                                            >
 
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="completed"
-                                            >
+</tbody>
 
-                                            <button
-                                                type="submit"
-                                                class="action-button complete-button"
-                                            >
-                                                Complete
-                                            </button>
+</table>
 
-                                        </form>
 
-                                    <?php endif; ?>
+<?php else: ?>
 
 
-                                    <?php if (
-                                        $booking["booking_status"] !== "cancelled"
-                                        &&
-                                        $booking["booking_status"] !== "completed"
-                                    ): ?>
+<div class="no-bookings">
 
-                                        <form
-                                            method="POST"
-                                            action="update_booking.php"
-                                        >
+No bookings found.
 
-                                            <input
-                                                type="hidden"
-                                                name="booking_id"
-                                                value="<?= $booking["id"] ?>"
-                                            >
+</div>
 
-                                            <input
-                                                type="hidden"
-                                                name="status"
-                                                value="cancelled"
-                                            >
 
-                                            <button
-                                                type="submit"
-                                                class="action-button cancel-button"
-                                            >
-                                                Cancel
-                                            </button>
+<?php endif; ?>
 
-                                        </form>
 
-                                    <?php endif; ?>
+</div>
 
-
-                                </div>
-
-                            </td>
-
-                        </tr>
-
-                    <?php endwhile; ?>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-        <?php else: ?>
-
-            <div class="empty-message">
-                No customer bookings yet.
-            </div>
-
-        <?php endif; ?>
-
-    </section>
 
 </main>
 
+
 </body>
-</html>/t
+
+</html>
+
+<?php
+$conn->close();
+?>
