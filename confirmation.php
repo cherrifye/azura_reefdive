@@ -1,49 +1,150 @@
 <?php
+
 session_start();
 
 require_once "db.php";
 
-$booking_id = (int) ($_GET["id"] ?? 0);
+
+/* =========================
+   LOGIN CHECK
+========================= */
+
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
+    exit;
+}
+
+
+/* =========================
+   BOOKING ID
+========================= */
+
+$booking_id =
+    (int) ($_GET["id"] ?? 0);
 
 if ($booking_id <= 0) {
     header("Location: index.php");
     exit;
 }
 
-$stmt = $conn->prepare(
-    "SELECT *
-     FROM bookings
-     WHERE id = ?"
-);
 
-$stmt->bind_param("i", $booking_id);
+/* =========================
+   GET BOOKING SECURELY
+========================= */
+
+$user_id =
+    (int) $_SESSION["user_id"];
+
+$role =
+    $_SESSION["role"] ?? "customer";
+
+
+if ($role === "admin") {
+
+    /*
+       Admin may view any booking receipt.
+    */
+
+    $stmt = $conn->prepare(
+        "SELECT *
+         FROM bookings
+         WHERE id = ?"
+    );
+
+    $stmt->bind_param(
+        "i",
+        $booking_id
+    );
+
+} else {
+
+    /*
+       Customer may only view
+       their own booking receipt.
+    */
+
+    $stmt = $conn->prepare(
+        "SELECT *
+         FROM bookings
+         WHERE id = ?
+         AND user_id = ?"
+    );
+
+    $stmt->bind_param(
+        "ii",
+        $booking_id,
+        $user_id
+    );
+
+}
+
+
 $stmt->execute();
 
-$result = $stmt->get_result();
-$booking = $result->fetch_assoc();
+$result =
+    $stmt->get_result();
+
+$booking =
+    $result->fetch_assoc();
+
+
+/* =========================
+   BOOKING NOT FOUND / NO ACCESS
+========================= */
 
 if (!$booking) {
-    die("Booking not found.");
+
+    if ($role === "admin") {
+        header(
+            "Location: admin_dashboard.php"
+        );
+    } else {
+        header(
+            "Location: my_bookings.php"
+        );
+    }
+
+    exit;
 }
+
+
+/* =========================
+   BOOKING STATUS
+========================= */
 
 $booking_status =
     strtolower(
-        $booking["booking_status"] ?? "pending"
+        $booking["booking_status"]
+        ?? "pending"
     );
+
+
+/* =========================
+   PAYMENT STATUS
+========================= */
 
 $payment_status =
     strtolower(
-        $booking["payment_status"] ?? "unpaid"
+        $booking["payment_status"]
+        ?? "unpaid"
     );
+
+
+/* =========================
+   PAYMENT METHOD
+========================= */
 
 $payment_method =
     strtolower(
-        $booking["payment_method"] ?? "cash"
+        $booking["payment_method"]
+        ?? "cash"
     );
+
 
 if ($payment_method === "gcash") {
 
-    $payment_method_label = "GCash";
+    $payment_method_label =
+        "GCash";
 
 } elseif ($payment_method === "card") {
 
@@ -52,9 +153,15 @@ if ($payment_method === "gcash") {
 
 } else {
 
-    $payment_method_label = "Cash";
+    $payment_method_label =
+        "Cash";
 
 }
+
+
+/* =========================
+   RECEIPT NUMBER
+========================= */
 
 $receipt_number =
     "AZR-" .
@@ -64,6 +171,7 @@ $receipt_number =
         "0",
         STR_PAD_LEFT
     );
+
 ?>
 
 <!DOCTYPE html>

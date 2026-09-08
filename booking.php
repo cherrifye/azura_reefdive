@@ -41,98 +41,272 @@ if (!empty($dive)) {
 
 <style>
 
-.booking-page {
+/* =========================
+   BOOKING PAGE
+========================= */
+
+body {
     background: var(--mint-50);
+}
+
+.booking-page {
     min-height: 100vh;
-    padding: 60px 20px;
+    padding: 55px 20px 90px;
+    position: relative;
+}
+
+/* soft background decoration */
+.booking-page::before {
+    content: "";
+    position: absolute;
+    top: 80px;
+    right: -150px;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: rgba(47, 138, 125, .06);
+    pointer-events: none;
 }
 
 .booking-container {
-    max-width: 900px;
+    max-width: 980px;
     margin: auto;
+    position: relative;
+    z-index: 1;
 }
+
+
+/* =========================
+   BACK HOME
+========================= */
+
+.back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 28px;
+    color: var(--teal-900);
+    text-decoration: none;
+    font-size: .88rem;
+    font-weight: 700;
+    transition: .2s;
+}
+
+.back-home:hover {
+    color: var(--teal-500);
+    transform: translateX(-3px);
+}
+
+
+/* =========================
+   BOOKING HEADER
+========================= */
 
 .booking-header {
     text-align: center;
-    margin-bottom: 35px;
+    max-width: 680px;
+    margin: 0 auto 38px;
+}
+
+.booking-header::before {
+    content: "PLAN YOUR EXPERIENCE";
+    display: block;
+    color: var(--teal-500);
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .16em;
+    margin-bottom: 12px;
 }
 
 .booking-header h1 {
     font-family: "Fraunces", serif;
     color: var(--teal-900);
-    font-size: 2.7rem;
-    margin-bottom: 10px;
+    font-size: clamp(2.5rem, 6vw, 3.6rem);
+    line-height: 1.05;
+    margin-bottom: 14px;
 }
 
 .booking-header p {
     color: var(--muted);
+    font-size: .98rem;
+    line-height: 1.7;
 }
+
+
+/* =========================
+   MAIN FORM
+========================= */
 
 .booking-form {
     background: white;
-    border-radius: 20px;
-    padding: 35px;
-    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 42px;
+    box-shadow:
+        0 25px 60px -35px
+        rgba(13, 58, 55, .45);
 }
 
+
+/* =========================
+   FORM SECTIONS
+========================= */
+
 .form-section {
-    margin-bottom: 32px;
+    margin-bottom: 42px;
+    padding-bottom: 42px;
+    border-bottom: 1px solid var(--border);
+}
+
+.form-section:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 15px;
+    border-bottom: none;
+}
+
+/* automatically number the sections */
+.booking-form {
+    counter-reset: booking-section;
 }
 
 .form-section h2 {
+    counter-increment: booking-section;
+
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
     font-family: "Fraunces", serif;
     color: var(--teal-900);
-    margin-bottom: 18px;
-    font-size: 1.5rem;
+    font-size: 1.45rem;
+    margin-bottom: 24px;
 }
+
+.form-section h2::before {
+    content: "0" counter(booking-section);
+
+    width: 39px;
+    height: 39px;
+
+    flex: none;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--teal-900);
+    color: white;
+
+    font-family: "Inter", sans-serif;
+    font-size: .7rem;
+    font-weight: 700;
+}
+
+
+/* =========================
+   FORM GRID
+========================= */
 
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 18px;
+    gap: 19px;
 }
 
 .form-group {
     display: flex;
     flex-direction: column;
-    gap: 7px;
+    gap: 8px;
 }
 
 .form-group.full {
     grid-column: 1 / -1;
 }
 
+
+/* =========================
+   LABELS
+========================= */
+
 label {
-    font-weight: 600;
     color: var(--ink);
-    font-size: .9rem;
+    font-size: .82rem;
+    font-weight: 700;
 }
+
+
+/* =========================
+   INPUTS
+========================= */
 
 input,
 select,
 textarea {
     width: 100%;
-    padding: 12px 14px;
+
+    background: #fff;
+
     border: 1px solid var(--border);
-    border-radius: 10px;
+    border-radius: 11px;
+
+    padding: 13px 14px;
+
+    color: var(--ink);
+
     font-family: "Inter", sans-serif;
-    font-size: .95rem;
+    font-size: .9rem;
+
     outline: none;
+
+    transition:
+        border-color .2s,
+        box-shadow .2s,
+        background .2s;
+}
+
+input:hover,
+select:hover,
+textarea:hover {
+    border-color: #c7dcd6;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
     border-color: var(--teal-500);
+    box-shadow:
+        0 0 0 3px
+        rgba(47, 138, 125, .09);
 }
 
 textarea {
-    min-height: 100px;
+    min-height: 110px;
     resize: vertical;
 }
 
+input::placeholder,
+textarea::placeholder {
+    color: #9aaca8;
+}
 
-/* RENTAL EQUIPMENT */
+
+/* =========================
+   RENTAL EQUIPMENT
+========================= */
+
+#rental-gear-group {
+    background: var(--mint-50);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+}
+
+#rental-gear-group > label {
+    color: var(--teal-900);
+    margin-bottom: 3px;
+}
 
 .rental-gear-options {
     display: grid;
@@ -143,117 +317,255 @@ textarea {
 .rental-gear-options label {
     display: flex;
     align-items: center;
-    gap: 9px;
+    gap: 10px;
 
-    background: var(--mint-50);
+    background: white;
+
     border: 1px solid var(--border);
     border-radius: 10px;
 
-    padding: 12px 14px;
+    padding: 13px;
+
+    color: var(--teal-900);
+    font-size: .8rem;
+    font-weight: 600;
+
     cursor: pointer;
+
+    transition:
+        border-color .2s,
+        transform .2s,
+        box-shadow .2s;
+}
+
+.rental-gear-options label:hover {
+    border-color: var(--teal-500);
+    transform: translateY(-1px);
+    box-shadow:
+        0 6px 15px
+        rgba(13, 58, 55, .05);
 }
 
 .rental-gear-options input {
-    width: auto;
+    width: 16px;
+    height: 16px;
     margin: 0;
+    accent-color: var(--teal-700);
 }
 
 
-/* PAYMENT */
+/* =========================
+   PAYMENT OPTIONS
+========================= */
 
 .payment-options {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    gap: 13px;
 }
 
 .payment-option {
-    border: 2px solid var(--border);
+    min-height: 125px;
+
+    position: relative;
+
+    display: block;
+
+    background: var(--mint-50);
+
+    border: 1px solid var(--border);
     border-radius: 14px;
+
     padding: 18px;
+
     cursor: pointer;
-    transition: .2s;
-    background: white;
+
+    transition:
+        transform .2s,
+        border-color .2s,
+        box-shadow .2s,
+        background .2s;
 }
 
 .payment-option:hover {
+    transform: translateY(-3px);
     border-color: var(--teal-500);
+    background: white;
+    box-shadow:
+        0 12px 25px -18px
+        rgba(13, 58, 55, .5);
 }
 
 .payment-option input {
-    width: auto;
-    margin-right: 7px;
+    width: 16px;
+    height: 16px;
+    margin: 0 0 15px;
+    display: block;
+    accent-color: var(--teal-700);
 }
 
 .payment-option strong {
+    display: block;
     color: var(--teal-900);
+    font-family: "Fraunces", serif;
+    font-size: 1.08rem;
+    margin-bottom: 5px;
 }
+
+.payment-note {
+    color: var(--muted);
+    font-size: .76rem;
+    line-height: 1.5;
+    margin-top: 5px;
+}
+
+
+/* =========================
+   PAYMENT DETAILS
+========================= */
 
 .payment-section {
     display: none;
+
     margin-top: 20px;
-    padding: 20px;
-    border-radius: 14px;
+
     background: var(--mint-50);
+
     border: 1px solid var(--border);
+    border-radius: 16px;
+
+    padding: 24px;
 }
 
 .payment-section.active {
     display: block;
 }
 
+
+/* =========================
+   GCASH
+========================= */
+
 .gcash-box {
     text-align: center;
+    margin-bottom: 22px;
+}
+
+.gcash-box h3 {
+    font-family: "Fraunces", serif;
+    color: var(--teal-900);
+    font-size: 1.35rem;
+    margin-bottom: 7px;
+}
+
+.gcash-box p {
+    color: var(--muted);
+    font-size: .86rem;
 }
 
 .gcash-box img {
-    width: 230px;
+    width: 215px;
     max-width: 100%;
-    border-radius: 14px;
-    margin: 15px auto;
+
     display: block;
+
+    margin: 18px auto;
+
     background: white;
-    padding: 10px;
+
     border: 1px solid var(--border);
+    border-radius: 15px;
+
+    padding: 10px;
+
+    box-shadow:
+        0 12px 30px -20px
+        rgba(13, 58, 55, .4);
 }
 
-.payment-note {
-    font-size: .85rem;
-    color: var(--muted);
-    margin-top: 8px;
-}
+
+/* =========================
+   DEMO CARD
+========================= */
 
 .demo-card-warning {
     background: #fff8dd;
-    padding: 12px;
-    border-radius: 10px;
-    margin-bottom: 16px;
-    font-size: .85rem;
+    border: 1px solid #f1dfa2;
+
     color: #765b13;
+
+    border-radius: 10px;
+
+    padding: 13px 15px;
+
+    margin-bottom: 20px;
+
+    font-size: .8rem;
+    line-height: 1.5;
 }
+
+
+/* =========================
+   SUBMIT
+========================= */
 
 .submit-area {
     text-align: center;
-    margin-top: 30px;
+    padding-top: 30px;
 }
 
 .submit-btn {
+    min-width: 220px;
+
     border: none;
+
+    padding: 15px 30px;
+
+    font-size: .9rem;
+    font-weight: 700;
+
     cursor: pointer;
-    font-size: 1rem;
-    padding: 14px 28px;
+
+    box-shadow:
+        0 12px 24px -15px
+        rgba(13, 58, 55, .7);
+
+    transition:
+        transform .2s,
+        box-shadow .2s;
 }
 
-.back-home {
-    display: inline-block;
-    margin-bottom: 20px;
-    color: var(--teal-900);
-    text-decoration: none;
-    font-weight: 600;
+.submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow:
+        0 17px 30px -17px
+        rgba(13, 58, 55, .75);
 }
 
+
+/* =========================
+   RESPONSIVE
+========================= */
 
 @media(max-width: 700px) {
+
+    .booking-page {
+        padding: 35px 16px 65px;
+    }
+
+    .booking-header {
+        margin-bottom: 28px;
+    }
+
+    .booking-form {
+        padding: 26px 20px;
+        border-radius: 18px;
+    }
+
+    .form-section {
+        margin-bottom: 32px;
+        padding-bottom: 32px;
+    }
 
     .form-grid,
     .payment-options,
@@ -261,8 +573,182 @@ textarea {
         grid-template-columns: 1fr;
     }
 
-    .booking-form {
-        padding: 24px;
+    .payment-option {
+        min-height: auto;
+    }
+
+    .form-section h2 {
+        font-size: 1.3rem;
+    }
+
+    .submit-btn {
+        width: 100%;
+    }
+
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.site-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    z-index: 20;
+}
+
+.header-inner {
+    min-height: 76px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+}
+
+.brand img {
+    width: 125px;
+    height: 52px;
+    object-fit: contain;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.main-nav a {
+    color: var(--ink);
+    text-decoration: none;
+    font-size: .82rem;
+    font-weight: 600;
+    transition: color .2s;
+}
+
+.main-nav a:hover {
+    color: var(--teal-500);
+}
+
+
+/* =========================
+   BOOKING HERO
+========================= */
+
+.booking-hero {
+    min-height: 430px;
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    background:
+        url("images/waterdive.jpg")
+        center 45% / cover no-repeat;
+
+    overflow: hidden;
+}
+
+.booking-hero-overlay {
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(8, 48, 45, .92) 0%,
+            rgba(8, 48, 45, .76) 48%,
+            rgba(8, 48, 45, .25) 100%
+        );
+}
+
+.booking-hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    color: white;
+}
+
+.booking-hero .eyebrow {
+    display: block;
+
+    margin-bottom: 17px;
+
+    color: #c7e4dc;
+
+    font-size: .72rem;
+    font-weight: 700;
+    letter-spacing: .17em;
+}
+
+.booking-hero h1 {
+    max-width: 680px;
+
+    margin: 0 0 18px;
+
+    color: white;
+
+    font-family: "Fraunces", serif;
+    font-size: clamp(2.7rem, 6vw, 4.6rem);
+    font-weight: 600;
+    line-height: .98;
+    letter-spacing: -.03em;
+}
+
+.booking-hero h1 em {
+    color: #c9e4dc;
+    font-weight: 500;
+}
+
+.booking-hero p {
+    max-width: 500px;
+
+    color: rgba(255,255,255,.82);
+
+    font-size: .92rem;
+    line-height: 1.7;
+}
+
+
+/* booking form sits nicely below hero */
+
+.booking-page {
+    padding-top: 55px;
+}
+
+
+/* =========================
+   HEADER RESPONSIVE
+========================= */
+
+@media(max-width: 800px) {
+
+    .main-nav {
+        display: none;
+    }
+
+    .header-inner {
+        min-height: 68px;
+    }
+
+    .brand img {
+        width: 105px;
+    }
+
+    .booking-hero {
+        min-height: 380px;
+    }
+
+    .booking-hero-overlay {
+        background:
+            rgba(8, 48, 45, .75);
     }
 
 }
@@ -272,6 +758,46 @@ textarea {
 </head>
 
 <body>
+
+<header class="site-header">
+    <div class="container header-inner">
+
+        <a href="index.php" class="brand">
+            <img src="images/daybbb .png" alt="Azura Reef Dive">
+        </a>
+
+        <nav class="main-nav">
+            <a href="index.php">Home</a>
+            <a href="schedule.php">Dive Sites</a>
+            <a href="tours.php">Snorkeling</a>
+            <a href="courses.php">Courses</a>
+            <a href="pricing.php">Pricing</a>
+        </nav>
+
+        <a href="booking.php" class="btn btn-dark">
+            Book a Dive
+        </a>
+
+    </div>
+</header>
+
+<section class="booking-hero">
+    <div class="booking-hero-overlay"></div>
+
+    <div class="container booking-hero-content">
+        <span class="eyebrow">YOUR SIQUIJOR ADVENTURE</span>
+
+        <h1>
+            Ready to Dive<br>
+            Into Something <em>Extraordinary?</em>
+        </h1>
+
+        <p>
+            Choose your experience, select your schedule,
+            and we'll take care of the rest.
+        </p>
+    </div>
+</section>
 
 <div class="booking-page">
 

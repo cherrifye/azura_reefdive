@@ -1,9 +1,13 @@
 <?php
+
 session_start();
 
 require_once "db.php";
 
-/* Admin only */
+
+/* =========================
+   ADMIN ONLY
+========================= */
 
 if (
     !isset($_SESSION["user_id"]) ||
@@ -14,7 +18,9 @@ if (
 }
 
 
-/* Dashboard counts */
+/* =========================
+   DASHBOARD COUNTS
+========================= */
 
 $totalBookingsResult =
     $conn->query(
@@ -63,7 +69,9 @@ $totalCustomers =
         ->fetch_assoc()["total"];
 
 
-/* Get bookings */
+/* =========================
+   GET BOOKINGS
+========================= */
 
 $bookings =
     $conn->query(
@@ -71,6 +79,7 @@ $bookings =
          FROM bookings
          ORDER BY created_at DESC"
     );
+
 ?>
 
 <!DOCTYPE html>
@@ -85,9 +94,8 @@ $bookings =
     content="width=device-width, initial-scale=1.0"
 >
 
-<title>
-Admin Dashboard | Azura Reef
-</title>
+<title>Admin Dashboard | Azura Reef</title>
+
 
 <link
     rel="preconnect"
@@ -110,152 +118,640 @@ Admin Dashboard | Azura Reef
     href="style.css"
 >
 
+
 <style>
+
+/* =========================
+   GENERAL
+========================= */
 
 body {
     background: var(--mint-50);
 }
 
+.admin-page {
+    min-height: 100vh;
+}
+
+
+/* =========================
+   HEADER
+========================= */
+
 .admin-header {
     background: white;
-    border-bottom: 1px solid var(--border);
+
+    border-bottom:
+        1px solid var(--border);
+
+    position: relative;
+    z-index: 20;
 }
 
 .admin-nav {
     max-width: 1300px;
+    min-height: 76px;
+
     margin: auto;
-    padding: 18px 20px;
+    padding: 0 20px;
 
     display: flex;
     justify-content: space-between;
     align-items: center;
+
+    gap: 30px;
 }
 
 .admin-brand {
-    font-family: "Fraunces", serif;
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--teal-900);
+    display: flex;
+    align-items: center;
+
     text-decoration: none;
+}
+
+.admin-brand img {
+    width: 125px;
+    height: 52px;
+
+    object-fit: contain;
+}
+
+.admin-center {
+    display: flex;
+    align-items: center;
+
+    gap: 8px;
+
+    color: var(--teal-900);
+
+    font-size: .76rem;
+    font-weight: 700;
+
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+
+.admin-dot {
+    width: 7px;
+    height: 7px;
+
+    background: var(--teal-500);
+
+    border-radius: 50%;
 }
 
 .admin-links {
     display: flex;
     align-items: center;
-    gap: 18px;
+
+    gap: 15px;
 }
 
-.admin-links span {
+.admin-welcome {
     color: var(--muted);
-    font-size: .9rem;
+
+    font-size: .78rem;
+
+    white-space: nowrap;
+}
+
+.admin-welcome strong {
+    color: var(--teal-900);
 }
 
 .admin-links a {
     color: var(--teal-900);
+
     text-decoration: none;
-    font-weight: 600;
-    font-size: .9rem;
+
+    font-size: .78rem;
+    font-weight: 700;
+
+    transition: color .2s;
 }
+
+.admin-links a:hover {
+    color: var(--teal-500);
+}
+
+
+/* =========================
+   DASHBOARD HERO
+========================= */
+
+.admin-hero {
+    position: relative;
+
+    min-height: 285px;
+
+    display: flex;
+    align-items: center;
+
+    background:
+        url("images/watercorals.jpg")
+        center 48% / cover no-repeat;
+
+    overflow: hidden;
+}
+
+.admin-hero::before {
+    content: "";
+
+    position: absolute;
+    inset: 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            rgba(8, 48, 45, .96) 0%,
+            rgba(8, 48, 45, .86) 48%,
+            rgba(8, 48, 45, .48) 100%
+        );
+}
+
+.admin-hero-content {
+    position: relative;
+    z-index: 2;
+
+    width: 100%;
+    max-width: 1300px;
+
+    margin: auto;
+    padding: 50px 20px;
+
+    color: white;
+}
+
+.hero-eyebrow {
+    display: block;
+
+    margin-bottom: 12px;
+
+    color: #c7e4dc;
+
+    font-size: .68rem;
+    font-weight: 700;
+    letter-spacing: .17em;
+}
+
+.admin-hero h1 {
+    margin: 0 0 12px;
+
+    color: white;
+
+    font-family: "Fraunces", serif;
+
+    font-size:
+        clamp(2.5rem, 5vw, 4rem);
+
+    font-weight: 600;
+
+    line-height: 1;
+
+    letter-spacing: -.03em;
+}
+
+.admin-hero h1 em {
+    color: #c9e4dc;
+
+    font-weight: 500;
+}
+
+.admin-hero p {
+    max-width: 520px;
+
+    margin: 0;
+
+    color:
+        rgba(255,255,255,.8);
+
+    font-size: .88rem;
+    line-height: 1.7;
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
 
 .dashboard {
     max-width: 1300px;
+
     margin: auto;
-    padding: 45px 20px 80px;
+
+    padding:
+        55px 20px 85px;
 }
+
+
+/* =========================
+   DASHBOARD TITLE
+========================= */
 
 .dashboard-title {
-    margin-bottom: 28px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    gap: 25px;
+
+    margin-bottom: 27px;
 }
 
-.dashboard-title h1 {
-    font-family: "Fraunces", serif;
-    color: var(--teal-900);
-    font-size: 2.5rem;
+.dashboard-title-left {
+    max-width: 600px;
+}
+
+.section-eyebrow {
+    display: block;
+
     margin-bottom: 8px;
+
+    color: var(--teal-500);
+
+    font-size: .67rem;
+    font-weight: 700;
+
+    letter-spacing: .15em;
+}
+
+.dashboard-title h2 {
+    margin: 0 0 7px;
+
+    color: var(--teal-900);
+
+    font-family: "Fraunces", serif;
+
+    font-size: 2.2rem;
+    font-weight: 600;
 }
 
 .dashboard-title p {
+    margin: 0;
+
     color: var(--muted);
+
+    font-size: .86rem;
+    line-height: 1.6;
 }
+
+.view-site-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    padding: 11px 17px;
+
+    background: white;
+
+    color: var(--teal-900);
+
+    border:
+        1px solid var(--teal-900);
+
+    border-radius: 9px;
+
+    text-decoration: none;
+
+    font-size: .76rem;
+    font-weight: 700;
+
+    transition: .2s;
+}
+
+.view-site-btn:hover {
+    background: var(--teal-900);
+    color: white;
+}
+
+
+/* =========================
+   STATS
+========================= */
 
 .stats {
     display: grid;
+
     grid-template-columns:
         repeat(4, 1fr);
-    gap: 18px;
-    margin-bottom: 35px;
+
+    gap: 15px;
+
+    margin-bottom: 42px;
 }
 
 .stat-card {
+    position: relative;
+
+    min-height: 135px;
+
     background: white;
+
+    border:
+        1px solid var(--border);
+
     border-radius: 16px;
-    padding: 22px;
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow);
+
+    padding: 21px;
+
+    overflow: hidden;
+
+    box-shadow:
+        0 18px 40px -32px
+        rgba(13, 58, 55, .5);
+
+    transition:
+        transform .2s,
+        box-shadow .2s;
+}
+
+.stat-card:hover {
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 24px 45px -32px
+        rgba(13, 58, 55, .55);
+}
+
+.stat-card::after {
+    content: "";
+
+    position: absolute;
+
+    width: 65px;
+    height: 65px;
+
+    right: -20px;
+    top: -20px;
+
+    background:
+        var(--mint-100);
+
+    border-radius: 50%;
+}
+
+.stat-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 17px;
 }
 
 .stat-label {
     color: var(--muted);
-    font-size: .85rem;
-    margin-bottom: 8px;
+
+    font-size: .72rem;
+    font-weight: 600;
 }
 
 .stat-number {
-    font-family: "Fraunces", serif;
-    font-size: 2rem;
-    font-weight: 700;
+    position: relative;
+    z-index: 2;
+
     color: var(--teal-900);
+
+    font-family: "Fraunces", serif;
+
+    font-size: 2.35rem;
+    font-weight: 700;
+
+    line-height: 1;
 }
+
+.stat-note {
+    margin-top: 8px;
+
+    color: #8aa09a;
+
+    font-size: .66rem;
+}
+
+
+/* =========================
+   MANAGEMENT HEADING
+========================= */
+
+.management-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+
+    gap: 20px;
+
+    margin-bottom: 17px;
+}
+
+.management-heading h2 {
+    margin: 0 0 5px;
+
+    color: var(--teal-900);
+
+    font-family: "Fraunces", serif;
+
+    font-size: 1.75rem;
+}
+
+.management-heading p {
+    margin: 0;
+
+    color: var(--muted);
+
+    font-size: .8rem;
+}
+
+
+/* =========================
+   TABLE CARD
+========================= */
 
 .table-card {
     background: white;
+
+    border:
+        1px solid var(--border);
+
     border-radius: 18px;
-    padding: 22px;
-    box-shadow: var(--shadow);
-    border: 1px solid var(--border);
-    overflow-x: auto;
+
+    box-shadow:
+        0 20px 45px -34px
+        rgba(13, 58, 55, .5);
+
+    overflow: hidden;
 }
 
-.table-card h2 {
-    font-family: "Fraunces", serif;
-    color: var(--teal-900);
-    margin-bottom: 20px;
+.table-scroll {
+    overflow-x: auto;
 }
 
 table {
     width: 100%;
+
+    min-width: 1180px;
+
     border-collapse: collapse;
-    min-width: 1150px;
+}
+
+thead {
+    background:
+        var(--teal-900);
 }
 
 th {
+    padding: 15px 13px;
+
+    color:
+        rgba(255,255,255,.8);
+
     text-align: left;
-    padding: 13px;
-    font-size: .78rem;
-    color: var(--muted);
-    background: var(--mint-50);
+
+    font-size: .66rem;
+    font-weight: 700;
+
+    letter-spacing: .06em;
+    text-transform: uppercase;
 }
 
 td {
-    padding: 14px 13px;
+    padding: 17px 13px;
+
     border-bottom:
         1px solid var(--border);
+
     vertical-align: top;
-    font-size: .88rem;
+
+    color: var(--ink);
+
+    font-size: .79rem;
+
+    line-height: 1.5;
 }
 
+tbody tr {
+    transition:
+        background .2s;
+}
+
+tbody tr:hover {
+    background:
+        var(--mint-50);
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* =========================
+   TABLE DETAILS
+========================= */
+
 .booking-code {
+    color: var(--teal-900);
+
     font-weight: 700;
+
+    white-space: nowrap;
+}
+
+.customer-name {
+    color: var(--teal-900);
+
+    font-weight: 700;
+}
+
+.customer-email {
+    display: inline-block;
+
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: .69rem;
+}
+
+.service-title {
+    color: var(--teal-900);
+
+    font-weight: 700;
+}
+
+.service-type {
+    display: inline-block;
+
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: .69rem;
+
+    text-transform: capitalize;
+}
+
+.rental-gear {
+    margin-top: 8px;
+
+    padding: 7px 8px;
+
+    background: var(--mint-50);
+
+    border-radius: 7px;
+
+    color: var(--muted);
+
+    font-size: .68rem;
+
+    line-height: 1.45;
+}
+
+.rental-gear strong {
     color: var(--teal-900);
 }
 
-.status-badge {
+.schedule-date {
+    color: var(--teal-900);
+
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.schedule-time {
     display: inline-block;
-    padding: 7px 11px;
+
+    margin-top: 3px;
+
+    color: var(--muted);
+
+    font-size: .7rem;
+}
+
+
+/* =========================
+   STATUS BADGES
+========================= */
+
+.status-badge {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    padding: 6px 10px;
+
     border-radius: 999px;
-    font-size: .72rem;
+
+    font-size: .62rem;
     font-weight: 700;
+
+    letter-spacing: .04em;
+
     text-transform: uppercase;
+
+    white-space: nowrap;
 }
 
 .pending {
@@ -288,77 +784,167 @@ td {
     color: #1f684c;
 }
 
-.action-group {
+
+/* =========================
+   PAYMENT
+========================= */
+
+.payment-stack {
     display: flex;
-    flex-wrap: wrap;
+
+    flex-direction: column;
+
+    align-items: flex-start;
+
     gap: 7px;
 }
 
-.action-group form {
+.payment-method {
+    color: var(--teal-900);
+
+    font-size: .74rem;
+    font-weight: 700;
+}
+
+
+/* =========================
+   ACTION BUTTONS
+========================= */
+
+.action-group {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 6px;
+}
+
+.action-group form,
+.payment-stack form {
     margin: 0;
 }
 
-.small-btn {
+.small-btn,
+.proof-btn {
+    display: inline-flex;
+
+    align-items: center;
+    justify-content: center;
+
+    min-height: 31px;
+
+    padding: 7px 9px;
+
     border: none;
-    border-radius: 8px;
-    padding: 8px 10px;
+    border-radius: 7px;
+
     cursor: pointer;
-    font-family: "Inter", sans-serif;
-    font-size: .76rem;
-    font-weight: 600;
+
+    text-decoration: none;
+
+    font-family:
+        "Inter", sans-serif;
+
+    font-size: .66rem;
+    font-weight: 700;
+
+    line-height: 1;
+
+    transition:
+        opacity .2s,
+        transform .2s;
+}
+
+.small-btn:hover,
+.proof-btn:hover {
+    opacity: .88;
+
+    transform:
+        translateY(-1px);
 }
 
 .confirm-btn {
-    background: var(--teal-900);
+    background:
+        var(--teal-900);
+
     color: white;
 }
 
 .complete-btn {
     background: #315c8e;
+
     color: white;
 }
 
 .cancel-btn {
     background: #983939;
+
     color: white;
 }
 
 .paid-btn {
     background: #1f684c;
+
     color: white;
 }
 
 .proof-btn {
-    display: inline-block;
-    text-decoration: none;
-    background: var(--teal-500);
+    background:
+        var(--teal-500);
+
     color: white;
-    padding: 8px 10px;
-    border-radius: 8px;
-    font-size: .76rem;
-    font-weight: 600;
+
+    white-space: nowrap;
 }
 
-.payment-method {
-    font-weight: 600;
-    color: var(--teal-900);
-    margin-bottom: 6px;
-}
 
-.payment-stack {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 7px;
-}
+/* =========================
+   NO BOOKINGS
+========================= */
 
 .no-bookings {
-    padding: 35px;
+    padding: 60px 25px;
+
     text-align: center;
+
     color: var(--muted);
+
+    font-size: .85rem;
 }
 
-@media(max-width: 900px) {
+
+/* =========================
+   FOOTER
+========================= */
+
+.admin-footer {
+    padding: 28px 20px;
+
+    background:
+        var(--teal-900);
+
+    text-align: center;
+}
+
+.admin-footer p {
+    margin: 0;
+
+    color:
+        rgba(255,255,255,.6);
+
+    font-size: .72rem;
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 950px) {
+
+    .admin-center {
+        display: none;
+    }
 
     .stats {
         grid-template-columns:
@@ -367,16 +953,54 @@ td {
 
 }
 
-@media(max-width: 600px) {
+
+@media(max-width: 650px) {
+
+    .admin-nav {
+        min-height: 68px;
+    }
+
+    .admin-brand img {
+        width: 105px;
+    }
+
+    .admin-welcome {
+        display: none;
+    }
+
+    .admin-hero {
+        min-height: 270px;
+    }
+
+    .admin-hero::before {
+        background:
+            rgba(8, 48, 45, .8);
+    }
+
+    .admin-hero-content {
+        padding:
+            42px 20px;
+    }
+
+    .dashboard {
+        padding:
+            42px 16px 65px;
+    }
+
+    .dashboard-title {
+        flex-direction: column;
+
+        align-items: flex-start;
+    }
 
     .stats {
         grid-template-columns: 1fr;
     }
 
-    .admin-nav {
-        flex-direction: column;
+    .management-heading {
         align-items: flex-start;
-        gap: 12px;
+
+        flex-direction: column;
     }
 
 }
@@ -385,33 +1009,62 @@ td {
 
 </head>
 
+
 <body>
 
+<div class="admin-page">
+
+
+<!-- =========================
+     HEADER
+========================= -->
 
 <header class="admin-header">
 
 <div class="admin-nav">
 
+
 <a
     href="admin_dashboard.php"
     class="admin-brand"
 >
-Azura Reef Admin
+
+<img
+    src="images/daybbb .png"
+    alt="Azura Reef Dive"
+>
+
 </a>
+
+
+<div class="admin-center">
+
+<span class="admin-dot"></span>
+
+Administration Portal
+
+</div>
+
 
 <div class="admin-links">
 
-<span>
+<span class="admin-welcome">
+
 Hi,
+<strong>
 <?= htmlspecialchars(
     $_SESSION["first_name"]
     ?? "Admin"
 ) ?>
+</strong>
+
 </span>
+
 
 <a href="index.php">
 Website
 </a>
+
 
 <a href="logout.php">
 Log Out
@@ -419,65 +1072,151 @@ Log Out
 
 </div>
 
+
 </div>
 
 </header>
 
 
-<main class="dashboard">
+<!-- =========================
+     HERO
+========================= -->
 
+<section class="admin-hero">
 
-<div class="dashboard-title">
+<div class="admin-hero-content">
+
+<span class="hero-eyebrow">
+AZURA REEF MANAGEMENT
+</span>
 
 <h1>
-Admin Dashboard
+Manage Every<br>
+<em>Adventure.</em>
 </h1>
 
 <p>
-Manage bookings and customer payments.
+Review customer reservations,
+verify payments, and manage
+upcoming Azura Reef experiences
+from one place.
+</p>
+
+</div>
+
+</section>
+
+
+<!-- =========================
+     DASHBOARD
+========================= -->
+
+<main class="dashboard">
+
+
+<!-- =========================
+     OVERVIEW
+========================= -->
+
+<div class="dashboard-title">
+
+<div class="dashboard-title-left">
+
+<span class="section-eyebrow">
+DASHBOARD OVERVIEW
+</span>
+
+<h2>
+Welcome Back,
+<?= htmlspecialchars(
+    $_SESSION["first_name"]
+    ?? "Admin"
+) ?>
+</h2>
+
+<p>
+Here's an overview of current
+bookings and registered customers.
 </p>
 
 </div>
 
 
+<a
+    href="index.php"
+    class="view-site-btn"
+>
+View Website
+</a>
+
+</div>
+
+
+<!-- =========================
+     STATS
+========================= -->
 
 <div class="stats">
 
 
 <div class="stat-card">
 
+<div class="stat-top">
+
 <div class="stat-label">
 Total Bookings
 </div>
 
+</div>
+
 <div class="stat-number">
-<?= $totalBookings ?>
+<?= (int) $totalBookings ?>
+</div>
+
+<div class="stat-note">
+All customer reservations
 </div>
 
 </div>
 
 
 <div class="stat-card">
+
+<div class="stat-top">
 
 <div class="stat-label">
 Pending Bookings
 </div>
 
+</div>
+
 <div class="stat-number">
-<?= $pendingBookings ?>
+<?= (int) $pendingBookings ?>
+</div>
+
+<div class="stat-note">
+Waiting for confirmation
 </div>
 
 </div>
 
 
 <div class="stat-card">
+
+<div class="stat-top">
 
 <div class="stat-label">
 Confirmed Bookings
 </div>
 
+</div>
+
 <div class="stat-number">
-<?= $confirmedBookings ?>
+<?= (int) $confirmedBookings ?>
+</div>
+
+<div class="stat-note">
+Approved reservations
 </div>
 
 </div>
@@ -485,12 +1224,20 @@ Confirmed Bookings
 
 <div class="stat-card">
 
+<div class="stat-top">
+
 <div class="stat-label">
-Customers
+Registered Customers
+</div>
+
 </div>
 
 <div class="stat-number">
-<?= $totalCustomers ?>
+<?= (int) $totalCustomers ?>
+</div>
+
+<div class="stat-note">
+Customer accounts
 </div>
 
 </div>
@@ -499,13 +1246,33 @@ Customers
 </div>
 
 
+<!-- =========================
+     BOOKING MANAGEMENT
+========================= -->
 
-<div class="table-card">
+<div class="management-heading">
+
+<div>
+
+<span class="section-eyebrow">
+BOOKING MANAGEMENT
+</span>
 
 <h2>
 All Bookings
 </h2>
 
+<p>
+Review reservations, payments,
+equipment rentals, and booking status.
+</p>
+
+</div>
+
+</div>
+
+
+<div class="table-card">
 
 <?php if (
     $bookings &&
@@ -513,7 +1280,10 @@ All Bookings
 ): ?>
 
 
+<div class="table-scroll">
+
 <table>
+
 
 <thead>
 
@@ -573,11 +1343,13 @@ $booking_status =
         ?? "pending"
     );
 
+
 $payment_status =
     strtolower(
         $booking["payment_status"]
         ?? "unpaid"
     );
+
 
 $payment_method =
     strtolower(
@@ -588,7 +1360,8 @@ $payment_method =
 
 if ($payment_method === "gcash") {
 
-    $payment_label = "GCash";
+    $payment_label =
+        "GCash";
 
 } elseif ($payment_method === "card") {
 
@@ -597,7 +1370,8 @@ if ($payment_method === "gcash") {
 
 } else {
 
-    $payment_label = "Cash";
+    $payment_label =
+        "Cash";
 
 }
 
@@ -606,6 +1380,8 @@ if ($payment_method === "gcash") {
 
 <tr>
 
+
+<!-- BOOKING -->
 
 <td>
 
@@ -623,73 +1399,103 @@ AZR-<?= str_pad(
 </td>
 
 
+<!-- CUSTOMER -->
+
 <td>
 
-<strong>
+<div class="customer-name">
+
 <?= htmlspecialchars(
     $booking["full_name"]
 ) ?>
+
+</div>
+
+
+<span class="customer-email">
+
+<?= htmlspecialchars(
+    $booking["email"]
+) ?>
+
+</span>
+
+</td>
+
+
+<!-- SERVICE -->
+
+<td>
+
+<div class="service-title">
+
+<?= htmlspecialchars(
+    $booking["service_name"]
+) ?>
+
+</div>
+
+
+<span class="service-type">
+
+<?= htmlspecialchars(
+    $booking["service_type"]
+) ?>
+
+</span>
+
+
+<?php if (
+    !empty(
+        $booking["rental_gear"]
+    )
+): ?>
+
+<div class="rental-gear">
+
+<strong>
+Rental Gear:
 </strong>
 
 <br>
 
-<small>
 <?= htmlspecialchars(
-    $booking["email"]
+    $booking["rental_gear"]
 ) ?>
-</small>
+
+</div>
+
+<?php endif; ?>
+
 
 </td>
 
-<td>
 
-    <strong>
-        <?= htmlspecialchars(
-            $booking["service_name"]
-        ) ?>
-    </strong>
-
-    <br>
-
-    <small>
-        <?= htmlspecialchars(
-            $booking["service_type"]
-        ) ?>
-    </small>
-
-
-    <?php if (!empty($booking["rental_gear"])): ?>
-
-        <div style="margin-top:8px;">
-
-            <strong>Rental Gear:</strong>
-
-            <br>
-
-            <?= htmlspecialchars(
-                $booking["rental_gear"]
-            ) ?>
-
-        </div>
-
-    <?php endif; ?>
-
-</td>
+<!-- SCHEDULE -->
 
 <td>
+
+<div class="schedule-date">
 
 <?= htmlspecialchars(
     $booking["booking_date"]
 ) ?>
 
-<br>
+</div>
+
+
+<span class="schedule-time">
 
 <?= htmlspecialchars(
     $booking["booking_time"]
 ) ?>
 
+</span>
+
 </td>
 
+
+<!-- GUESTS -->
 
 <td>
 
@@ -700,10 +1506,12 @@ AZR-<?= str_pad(
 </td>
 
 
+<!-- PAYMENT -->
 
 <td>
 
 <div class="payment-stack">
+
 
 <div class="payment-method">
 
@@ -715,9 +1523,12 @@ AZR-<?= str_pad(
 
 
 <span
-class="status-badge <?= htmlspecialchars(
-    $payment_status
-) ?>"
+    class="
+        status-badge
+        <?= htmlspecialchars(
+            $payment_status
+        ) ?>
+    "
 >
 
 <?= strtoupper(
@@ -736,6 +1547,7 @@ class="status-badge <?= htmlspecialchars(
     )
 ): ?>
 
+
 <a
     href="<?= htmlspecialchars(
         $booking["payment_proof"]
@@ -745,6 +1557,7 @@ class="status-badge <?= htmlspecialchars(
 >
 View Payment Proof
 </a>
+
 
 <?php endif; ?>
 
@@ -756,6 +1569,7 @@ View Payment Proof
     ) &&
     $payment_status !== "paid"
 ): ?>
+
 
 <form
     method="POST"
@@ -785,6 +1599,7 @@ Mark as Paid
 
 </form>
 
+
 <?php endif; ?>
 
 
@@ -793,13 +1608,17 @@ Mark as Paid
 </td>
 
 
+<!-- BOOKING STATUS -->
 
 <td>
 
 <span
-class="status-badge <?= htmlspecialchars(
-    $booking_status
-) ?>"
+    class="
+        status-badge
+        <?= htmlspecialchars(
+            $booking_status
+        ) ?>
+    "
 >
 
 <?= strtoupper(
@@ -813,6 +1632,7 @@ class="status-badge <?= htmlspecialchars(
 </td>
 
 
+<!-- ACTIONS -->
 
 <td>
 
@@ -822,6 +1642,7 @@ class="status-badge <?= htmlspecialchars(
 <?php if (
     $booking_status === "pending"
 ): ?>
+
 
 <form
     method="POST"
@@ -946,7 +1767,9 @@ Cancel
 
 <?php else: ?>
 
+<span style="color:var(--muted);">
 —
+</span>
 
 <?php endif; ?>
 
@@ -964,7 +1787,10 @@ Cancel
 
 </tbody>
 
+
 </table>
+
+</div>
 
 
 <?php else: ?>
@@ -986,10 +1812,30 @@ No bookings found.
 </main>
 
 
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="admin-footer">
+
+<p>
+© <?= date("Y") ?> Azura Reef Dive.
+Administration Portal.
+</p>
+
+</footer>
+
+
+</div>
+
+
 </body>
 
 </html>
 
+
 <?php
+
 $conn->close();
+
 ?>

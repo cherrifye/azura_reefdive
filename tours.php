@@ -1,15 +1,14 @@
 <?php
+
 session_start();
 
 /*
     AZURA REEF DIVE
-    Snorkeling Tours Page
-
-    These tours are temporary PHP data.
-    Later, we can connect them to the MySQL database.
+    Snorkeling Tours
 */
 
 $tours = [
+
     [
         'name' => 'Coral Garden Snorkeling',
         'description' => 'Swim above colorful coral gardens and discover tropical fish in the clear waters of Siquijor.',
@@ -19,6 +18,7 @@ $tours = [
         'price' => 1200,
         'image' => 'images/watercorals.jpg'
     ],
+
     [
         'name' => 'Turtle & Reef Adventure',
         'description' => 'Explore beautiful reef areas with a local guide and enjoy the chance to spot turtles and other marine life.',
@@ -28,6 +28,7 @@ $tours = [
         'price' => 1500,
         'image' => 'images/waterdive.jpg'
     ],
+
     [
         'name' => 'Island Snorkeling Experience',
         'description' => 'Spend a relaxing half-day visiting snorkeling spots around Siquijor and experiencing the island from the water.',
@@ -37,330 +38,1252 @@ $tours = [
         'price' => 2000,
         'image' => 'images/diverfish.jpg'
     ]
+
 ];
 
+
 $inclusions = [
+
     'Snorkeling mask and snorkel',
     'Fins',
     'Life vest',
     'Local snorkeling guide',
     'Safety briefing',
     'Drinking water'
+
 ];
+
 ?>
 
 <!DOCTYPE html>
+
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Snorkeling Tours | Azura Reef Dive</title>
+<meta charset="UTF-8">
 
-    <!-- Same fonts as homepage -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
 
-    <link
-        href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
-        rel="stylesheet"
-    >
-
-    <!-- Your existing CSS -->
-    <link rel="stylesheet" href="style.css">
-
-    <style>
-
-        /* =========================
-           SNORKELING TOURS PAGE
-        ========================= */
-
-        .page-hero {
-            background: var(--teal-900);
-            color: white;
-            text-align: center;
-            padding: 85px 24px;
-        }
-
-        .page-hero h1 {
-            font-size: clamp(2.2rem, 5vw, 3.4rem);
-            margin-bottom: 16px;
-        }
-
-        .page-hero p {
-            max-width: 650px;
-            margin: auto;
-            color: var(--muted-light);
-            font-size: 1.05rem;
-        }
-
-        .tours-section {
-            background: var(--mint-50);
-            padding: 85px 24px;
-        }
-
-        .tours-heading {
-            text-align: center;
-            max-width: 650px;
-            margin: 0 auto 50px;
-        }
-
-        .tours-heading h2 {
-            color: var(--teal-900);
-            font-size: 2rem;
-            margin-bottom: 12px;
-        }
-
-        .tours-heading p {
-            color: var(--muted);
-        }
-
-        .tour-grid {
-            max-width: 1140px;
-            margin: auto;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 28px;
-        }
-
-        .tour-card {
-            background: white;
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            transition: transform .2s ease;
-        }
-
-        .tour-card:hover {
-            transform: translateY(-6px);
-        }
-
-        .tour-image {
-            height: 220px;
-            overflow: hidden;
-        }
-
-        .tour-image img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            transition: transform .35s ease;
-        }
-
-        .tour-card:hover .tour-image img {
-            transform: scale(1.05);
-        }
-
-        .tour-content {
-            padding: 26px;
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .tour-content h3 {
-            color: var(--teal-900);
-            font-size: 1.3rem;
-            margin-bottom: 10px;
-        }
-
-        .tour-description {
-            color: var(--muted);
-            font-size: .94rem;
-            margin-bottom: 22px;
-        }
-
-        .tour-info {
-            border-top: 1px solid var(--border);
-            border-bottom: 1px solid var(--border);
-            padding: 16px 0;
-            margin-bottom: 22px;
-        }
-
-        .tour-info-row {
-            display: flex;
-            justify-content: space-between;
-            gap: 15px;
-            margin-bottom: 9px;
-            font-size: .88rem;
-        }
-
-        .tour-info-row:last-child {
-            margin-bottom: 0;
-        }
-
-        .tour-info-label {
-            color: var(--muted);
-        }
-
-        .tour-info-value {
-            color: var(--teal-900);
-            font-weight: 600;
-            text-align: right;
-        }
-
-        .tour-bottom {
-            margin-top: auto;
-        }
-
-        .tour-price {
-            margin-bottom: 18px;
-            color: var(--teal-900);
-        }
-
-        .tour-price strong {
-            font-family: 'Fraunces', serif;
-            font-size: 1.7rem;
-        }
-
-        .tour-price span {
-            color: var(--muted);
-            font-size: .85rem;
-        }
-
-        .tour-bottom .btn {
-            width: 100%;
-            justify-content: center;
-        }
+<title>
+Snorkeling Tours | Azura Reef Dive
+</title>
 
 
-        /* =========================
-           TOUR INCLUSIONS
-        ========================= */
+<link
+    rel="preconnect"
+    href="https://fonts.googleapis.com"
+>
 
-        .inclusions-section {
-            background: white;
-            padding: 85px 24px;
-        }
+<link
+    rel="preconnect"
+    href="https://fonts.gstatic.com"
+    crossorigin
+>
 
-        .inclusions-box {
-            max-width: 900px;
-            margin: auto;
-            background: var(--mint-50);
-            border: 1px solid var(--border);
-            border-radius: var(--radius-lg);
-            padding: 45px;
-        }
+<link
+    href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+    rel="stylesheet"
+>
 
-        .inclusions-box h2 {
-            color: var(--teal-900);
-            text-align: center;
-            font-size: 2rem;
-            margin-bottom: 10px;
-        }
-
-        .inclusions-intro {
-            color: var(--muted);
-            text-align: center;
-            margin-bottom: 32px;
-        }
-
-        .inclusion-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-        }
-
-        .inclusion-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            background: white;
-            border-radius: var(--radius-sm);
-            padding: 15px 18px;
-            color: var(--teal-900);
-            font-size: .92rem;
-            font-weight: 500;
-        }
-
-        .check {
-            width: 25px;
-            height: 25px;
-            flex: none;
-            border-radius: 50%;
-            background: var(--mint-100);
-            color: var(--teal-500);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-        }
+<link
+    rel="stylesheet"
+    href="style.css"
+>
 
 
-        /* =========================
-           CALL TO ACTION
-        ========================= */
+<style>
 
-        .tour-cta {
-            background: var(--teal-900);
-            color: white;
-            text-align: center;
-            padding: 75px 24px;
-        }
+/* =========================
+   PAGE
+========================= */
 
-        .tour-cta h2 {
-            color: white;
-            font-size: 2rem;
-            margin-bottom: 12px;
-        }
-
-        .tour-cta p {
-            max-width: 570px;
-            margin: 0 auto 25px;
-            color: var(--muted-light);
-        }
-
-        .back-home {
-            margin-top: 25px;
-        }
-
-        .back-home a {
-            color: var(--muted-light);
-            font-size: .9rem;
-        }
-
-        .back-home a:hover {
-            color: white;
-        }
+body {
+    background: var(--mint-50);
+}
 
 
-        /* =========================
-           RESPONSIVE
-        ========================= */
+/* =========================
+   HERO
+========================= */
 
-        @media (max-width: 900px) {
+.tour-hero {
 
-            .tour-grid {
-                grid-template-columns: 1fr;
-                max-width: 600px;
-            }
+    min-height: 530px;
 
-            .inclusion-grid {
-                grid-template-columns: 1fr;
-            }
-        }
+    position: relative;
 
-        @media (max-width: 600px) {
+    display: flex;
 
-            .page-hero {
-                padding: 65px 20px;
-            }
+    align-items: center;
 
-            .tours-section,
-            .inclusions-section {
-                padding: 60px 20px;
-            }
+    background:
 
-            .inclusions-box {
-                padding: 30px 20px;
-            }
-        }
+        linear-gradient(
+            90deg,
+            rgba(7, 46, 43, .94),
+            rgba(13, 58, 55, .72),
+            rgba(13, 58, 55, .28)
+        ),
 
-    </style>
+        url("images/watercorals.jpg")
+        center / cover
+        no-repeat;
+
+    overflow: hidden;
+
+}
+
+
+.tour-hero::after {
+
+    content: "";
+
+    position: absolute;
+
+    left: 0;
+    right: 0;
+    bottom: 0;
+
+    height: 110px;
+
+    background:
+        linear-gradient(
+            to bottom,
+            transparent,
+            var(--mint-50)
+        );
+
+}
+
+
+.tour-hero-content {
+
+    width: 100%;
+
+    max-width: 1140px;
+
+    margin: auto;
+
+    padding:
+        85px 24px
+        125px;
+
+    position: relative;
+
+    z-index: 2;
+
+}
+
+
+.tour-eyebrow {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+
+    color: #d4eee7;
+
+    font-size: .76rem;
+
+    font-weight: 700;
+
+    letter-spacing: .16em;
+
+    text-transform: uppercase;
+
+    margin-bottom: 18px;
+
+}
+
+
+.tour-eyebrow::before {
+
+    content: "";
+
+    width: 32px;
+
+    height: 1px;
+
+    background: #d4eee7;
+
+}
+
+
+.tour-hero h1 {
+
+    max-width: 730px;
+
+    color: white;
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size:
+        clamp(
+            3rem,
+            7vw,
+            5rem
+        );
+
+    line-height: 1;
+
+    margin-bottom: 22px;
+
+}
+
+
+.tour-hero p {
+
+    max-width: 610px;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .88
+        );
+
+    line-height: 1.8;
+
+    font-size: 1.05rem;
+
+}
+
+
+.hero-buttons {
+
+    display: flex;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+    margin-top: 28px;
+
+}
+
+
+.hero-primary {
+
+    background: white;
+
+    color: var(--teal-900);
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+}
+
+
+.hero-secondary {
+
+    color: white;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            .55
+        );
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================
+   TOURS
+========================= */
+
+.tours-section {
+
+    padding:
+        55px 24px
+        90px;
+
+}
+
+
+.tours-heading {
+
+    max-width: 720px;
+
+    margin:
+        0 auto
+        48px;
+
+    text-align: center;
+
+}
+
+
+.section-eyebrow {
+
+    display: inline-block;
+
+    color: var(--teal-500);
+
+    font-size: .75rem;
+
+    font-weight: 700;
+
+    letter-spacing: .14em;
+
+    text-transform: uppercase;
+
+    margin-bottom: 12px;
+
+}
+
+
+.tours-heading h2 {
+
+    color: var(--teal-900);
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size:
+        clamp(
+            2rem,
+            4vw,
+            2.8rem
+        );
+
+    margin-bottom: 12px;
+
+}
+
+
+.tours-heading p {
+
+    color: var(--muted);
+
+    line-height: 1.7;
+
+}
+
+
+/* =========================
+   TOUR CARDS
+========================= */
+
+.tour-grid {
+
+    max-width: 1140px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 24px;
+
+}
+
+
+.tour-card {
+
+    background: white;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    display: flex;
+
+    flex-direction: column;
+
+    box-shadow:
+        0 18px 45px -30px
+        rgba(13, 58, 55, .5);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease;
+
+}
+
+
+.tour-card:hover {
+
+    transform:
+        translateY(-6px);
+
+    box-shadow:
+        0 27px 55px -30px
+        rgba(13, 58, 55, .55);
+
+}
+
+
+/* IMAGE */
+
+.tour-image {
+
+    height: 250px;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+.tour-image::after {
+
+    content: "";
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+        linear-gradient(
+            to top,
+            rgba(7,46,43,.32),
+            transparent 55%
+        );
+
+}
+
+
+.tour-image img {
+
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    transition:
+        transform .5s ease;
+
+}
+
+
+.tour-card:hover
+.tour-image img {
+
+    transform:
+        scale(1.05);
+
+}
+
+
+.tour-badge {
+
+    position: absolute;
+
+    top: 16px;
+
+    left: 16px;
+
+    z-index: 2;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .94
+        );
+
+    color: var(--teal-900);
+
+    padding: 7px 12px;
+
+    border-radius: 999px;
+
+    font-size: .7rem;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,.1);
+
+}
+
+
+/* CONTENT */
+
+.tour-content {
+
+    padding: 25px;
+
+    flex: 1;
+
+    display: flex;
+
+    flex-direction: column;
+
+}
+
+
+.tour-type {
+
+    color: var(--teal-500);
+
+    text-transform: uppercase;
+
+    letter-spacing: .1em;
+
+    font-size: .68rem;
+
+    font-weight: 700;
+
+    margin-bottom: 7px;
+
+}
+
+
+.tour-content h3 {
+
+    color: var(--teal-900);
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size: 1.45rem;
+
+    line-height: 1.2;
+
+    margin-bottom: 10px;
+
+}
+
+
+.tour-description {
+
+    color: var(--muted);
+
+    line-height: 1.65;
+
+    font-size: .9rem;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* INFORMATION */
+
+.tour-info {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 8px;
+
+    margin-bottom: 22px;
+
+}
+
+
+.tour-info-row {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    gap: 14px;
+
+    background:
+        var(--mint-50);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 9px;
+
+    padding: 10px 12px;
+
+    font-size: .79rem;
+
+}
+
+
+.tour-info-label {
+
+    color: var(--muted);
+
+}
+
+
+.tour-info-value {
+
+    color: var(--teal-900);
+
+    font-weight: 700;
+
+    text-align: right;
+
+}
+
+
+/* PRICE */
+
+.tour-bottom {
+
+    margin-top: auto;
+
+    padding-top: 18px;
+
+    border-top:
+        1px solid
+        var(--border);
+
+}
+
+
+.price-label {
+
+    display: block;
+
+    color: var(--muted);
+
+    font-size: .67rem;
+
+    letter-spacing: .08em;
+
+    text-transform: uppercase;
+
+    margin-bottom: 3px;
+
+}
+
+
+.tour-price {
+
+    margin-bottom: 15px;
+
+}
+
+
+.tour-price strong {
+
+    color: var(--teal-900);
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size: 1.75rem;
+
+}
+
+
+.tour-price span {
+
+    color: var(--muted);
+
+    font-size: .8rem;
+
+}
+
+
+.tour-bottom .btn {
+
+    width: 100%;
+
+    justify-content: center;
+
+}
+
+
+/* =========================
+   WHY SNORKEL
+========================= */
+
+.why-snorkel {
+
+    background: white;
+
+    padding:
+        85px 24px;
+
+    border-top:
+        1px solid
+        var(--border);
+
+}
+
+
+.why-container {
+
+    max-width: 1080px;
+
+    margin: auto;
+
+}
+
+
+.why-heading {
+
+    max-width: 650px;
+
+    margin-bottom: 38px;
+
+}
+
+
+.why-heading h2 {
+
+    color: var(--teal-900);
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size: 2.4rem;
+
+    margin:
+        8px 0 10px;
+
+}
+
+
+.why-heading p {
+
+    color: var(--muted);
+
+    line-height: 1.7;
+
+}
+
+
+.why-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 18px;
+
+}
+
+
+.why-card {
+
+    background: var(--mint-50);
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 16px;
+
+    padding: 25px;
+
+}
+
+
+.why-number {
+
+    width: 42px;
+
+    height: 42px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--teal-900);
+
+    color: white;
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    margin-bottom: 17px;
+
+}
+
+
+.why-card h3 {
+
+    color: var(--teal-900);
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size: 1.2rem;
+
+    margin-bottom: 8px;
+
+}
+
+
+.why-card p {
+
+    color: var(--muted);
+
+    line-height: 1.65;
+
+    font-size: .9rem;
+
+}
+
+
+/* =========================
+   INCLUSIONS
+========================= */
+
+.inclusions-section {
+
+    padding:
+        90px 24px;
+
+    background: var(--mint-50);
+
+}
+
+
+.inclusions-container {
+
+    max-width: 1080px;
+
+    margin: auto;
+
+    display: grid;
+
+    grid-template-columns:
+        .85fr 1.15fr;
+
+    gap: 55px;
+
+    align-items: center;
+
+}
+
+
+.inclusions-text h2 {
+
+    color: var(--teal-900);
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size: 2.5rem;
+
+    margin:
+        8px 0 13px;
+
+}
+
+
+.inclusions-text p {
+
+    color: var(--muted);
+
+    line-height: 1.75;
+
+}
+
+
+.inclusion-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(2, 1fr);
+
+    gap: 12px;
+
+}
+
+
+.inclusion-item {
+
+    background: white;
+
+    border:
+        1px solid
+        var(--border);
+
+    border-radius: 12px;
+
+    padding: 15px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 11px;
+
+    color: var(--teal-900);
+
+    font-size: .86rem;
+
+    font-weight: 600;
+
+}
+
+
+.check {
+
+    width: 27px;
+
+    height: 27px;
+
+    flex: none;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: var(--mint-100);
+
+    color: var(--teal-500);
+
+    font-weight: 700;
+
+}
+
+
+/* =========================
+   CTA
+========================= */
+
+.tour-cta-section {
+
+    background: white;
+
+    padding:
+        80px 24px;
+
+}
+
+
+.tour-cta {
+
+    max-width: 1080px;
+
+    margin: auto;
+
+    background:
+        var(--teal-900);
+
+    border-radius: 24px;
+
+    text-align: center;
+
+    padding:
+        55px 30px;
+
+    position: relative;
+
+    overflow: hidden;
+
+}
+
+
+.tour-cta::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 330px;
+
+    height: 330px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(
+            255,
+            255,
+            255,
+            .04
+        );
+
+    right: -120px;
+
+    top: -200px;
+
+}
+
+
+.tour-cta h2 {
+
+    position: relative;
+
+    color: white;
+
+    font-family:
+        "Fraunces",
+        serif;
+
+    font-size:
+        clamp(
+            2rem,
+            4vw,
+            2.7rem
+        );
+
+    margin-bottom: 10px;
+
+}
+
+
+.tour-cta p {
+
+    position: relative;
+
+    max-width: 570px;
+
+    margin:
+        0 auto
+        24px;
+
+    color:
+        rgba(
+            255,
+            255,
+            255,
+            .8
+        );
+
+    line-height: 1.7;
+
+}
+
+
+.cta-buttons {
+
+    position: relative;
+
+    display: flex;
+
+    justify-content: center;
+
+    gap: 12px;
+
+    flex-wrap: wrap;
+
+}
+
+
+.cta-primary {
+
+    background: white;
+
+    color: var(--teal-900);
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: 700;
+
+}
+
+
+.cta-secondary {
+
+    color: white;
+
+    border:
+        1px solid
+        rgba(
+            255,
+            255,
+            255,
+            .5
+        );
+
+    padding: 12px 20px;
+
+    border-radius: 10px;
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+}
+
+
+/* =========================
+   FOOTER
+========================= */
+
+.tours-footer {
+
+    background: white;
+
+    border-top:
+        1px solid
+        var(--border);
+
+    padding: 25px 20px;
+
+}
+
+
+.tours-footer-inner {
+
+    max-width: 1080px;
+
+    margin: auto;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content:
+        space-between;
+
+    gap: 20px;
+
+}
+
+
+.tours-footer p {
+
+    color: var(--muted);
+
+    font-size: .83rem;
+
+}
+
+
+.tours-footer a {
+
+    color: var(--teal-900);
+
+    text-decoration: none;
+
+    font-weight: 600;
+
+    font-size: .85rem;
+
+}
+
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 900px) {
+
+    .tour-grid {
+
+        grid-template-columns: 1fr;
+
+        max-width: 620px;
+
+    }
+
+
+    .tour-image {
+
+        height: 320px;
+
+    }
+
+
+    .why-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .inclusions-container {
+
+        grid-template-columns: 1fr;
+
+        gap: 35px;
+
+    }
+
+}
+
+
+@media(max-width: 650px) {
+
+    .tour-hero {
+
+        min-height: 480px;
+
+    }
+
+
+    .tour-hero-content {
+
+        padding:
+            70px 20px
+            105px;
+
+    }
+
+
+    .inclusion-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .tours-footer-inner {
+
+        flex-direction: column;
+
+        text-align: center;
+
+    }
+
+}
+
+</style>
 
 </head>
 
@@ -374,287 +1297,617 @@ $inclusions = [
 
 <header>
 
-    <div class="nav-wrap">
-
-        <a href="index.php" class="brand">
-
-            <span class="brand-icon">
-                <img src="images/daybbb .png" alt="Azura Reef logo">
-            </span>
-
-            <span class="brand-name">
-                Azura Reef
-            </span>
-
-        </a>
+<div class="nav-wrap">
 
 
-        <nav class="nav-links">
+<a
+    href="index.php"
+    class="brand"
+>
 
-            <a href="index.php#services">
-                Services
-            </a>
+<span class="brand-icon">
 
-            <a href="index.php#lessons">
-                Lessons
-            </a>
+<img
+    src="images/daybbb .png"
+    alt="Azura Reef logo"
+>
 
-            <a href="index.php#why-us">
-                Why Us
-            </a>
+</span>
 
-            <a href="index.php#about">
-                About
-            </a>
+<span class="brand-name">
+Azura Reef
+</span>
 
-        </nav>
+</a>
 
 
-        <div class="nav-cta">
 
-            <a href="index.php" class="nav-logout">
-                Home
-            </a>
+<nav class="nav-links">
 
-            <a href="booking.php" class="btn btn-dark">
-                Book a Dive
-            </a>
+<a href="index.php#services">
+Services
+</a>
 
-        </div>
+<a href="index.php#lessons">
+Lessons
+</a>
 
-    </div>
+<a href="index.php#why-us">
+Why Us
+</a>
+
+<a href="index.php#about">
+About
+</a>
+
+</nav>
+
+
+
+<div class="nav-cta">
+
+<a
+    href="index.php"
+    class="nav-logout"
+>
+Home
+</a>
+
+<a
+    href="booking.php"
+    class="btn btn-dark"
+>
+Book a Dive
+</a>
+
+</div>
+
+
+</div>
 
 </header>
 
 
+
 <!-- =========================
-     PAGE HERO
+     HERO
 ========================= -->
 
-<section class="page-hero">
+<section class="tour-hero">
 
-    <h1>Snorkeling Tours</h1>
 
-    <p>
-        Discover Siquijor's beautiful marine life from the surface.
-        Our guided snorkeling tours are perfect for families,
-        beginners, and anyone who wants to experience the island's
-        underwater beauty without scuba diving.
-    </p>
+<div class="tour-hero-content">
+
+
+<div class="tour-eyebrow">
+Explore From the Surface
+</div>
+
+
+<h1>
+See Siquijor Beneath the Blue.
+</h1>
+
+
+<p>
+Discover colorful reefs and marine life without
+going deep underwater. Our guided snorkeling
+experiences are a relaxing way to explore the
+beauty surrounding Siquijor Island.
+</p>
+
+
+<div class="hero-buttons">
+
+
+<a
+    href="#snorkeling-tours"
+    class="hero-primary"
+>
+Explore Tours
+</a>
+
+
+<a
+    href="booking.php?type=snorkeling"
+    class="hero-secondary"
+>
+Book a Tour
+</a>
+
+
+</div>
+
+
+</div>
+
 
 </section>
+
 
 
 <!-- =========================
      TOUR OPTIONS
 ========================= -->
 
-<section class="tours-section">
-
-    <div class="tours-heading">
-
-        <span class="eyebrow-line">
-            Explore Siquijor
-        </span>
-
-        <h2>Choose Your Snorkeling Adventure</h2>
-
-        <p>
-            Find the experience that fits your trip and enjoy
-            Siquijor's clear waters with one of our local guides.
-        </p>
-
-    </div>
+<section
+    class="tours-section"
+    id="snorkeling-tours"
+>
 
 
-    <div class="tour-grid">
-
-        <?php foreach ($tours as $tour): ?>
-
-            <div class="tour-card">
+<div class="tours-heading">
 
 
-                <!-- IMAGE -->
-
-                <div class="tour-image">
-
-                    <img
-                        src="<?= htmlspecialchars($tour['image']) ?>"
-                        alt="<?= htmlspecialchars($tour['name']) ?>"
-                    >
-
-                </div>
+<span class="section-eyebrow">
+Choose Your Adventure
+</span>
 
 
-                <!-- TOUR CONTENT -->
-
-                <div class="tour-content">
-
-                    <h3>
-                        <?= htmlspecialchars($tour['name']) ?>
-                    </h3>
-
-                    <p class="tour-description">
-                        <?= htmlspecialchars($tour['description']) ?>
-                    </p>
+<h2>
+Snorkeling Experiences
+</h2>
 
 
-                    <!-- TOUR INFORMATION -->
-
-                    <div class="tour-info">
-
-                        <div class="tour-info-row">
-
-                            <span class="tour-info-label">
-                                Location
-                            </span>
-
-                            <span class="tour-info-value">
-                                <?= htmlspecialchars($tour['location']) ?>
-                            </span>
-
-                        </div>
+<p>
+From colorful coral gardens to longer island
+experiences, find the tour that fits the way
+you want to explore Siquijor.
+</p>
 
 
-                        <div class="tour-info-row">
-
-                            <span class="tour-info-label">
-                                Duration
-                            </span>
-
-                            <span class="tour-info-value">
-                                <?= htmlspecialchars($tour['duration']) ?>
-                            </span>
-
-                        </div>
+</div>
 
 
-                        <div class="tour-info-row">
 
-                            <span class="tour-info-label">
-                                Experience
-                            </span>
-
-                            <span class="tour-info-value">
-                                <?= htmlspecialchars($tour['level']) ?>
-                            </span>
-
-                        </div>
-
-                    </div>
+<div class="tour-grid">
 
 
-                    <!-- PRICE AND BUTTON -->
-
-                    <div class="tour-bottom">
-
-                        <div class="tour-price">
-
-                            <strong>
-                                ₱<?= number_format($tour['price']) ?>
-                            </strong>
-
-                            <span>
-                                / person
-                            </span>
-
-                        </div>
+<?php foreach (
+    $tours as $tour
+): ?>
 
 
-                        <a
-                            href="booking.php?type=snorkeling&tour=<?= urlencode($tour['name']) ?>"
-                            class="btn btn-primary"
-                        >
-                            Book This Tour
-                        </a>
+<div class="tour-card">
 
-                    </div>
 
-                </div>
+<div class="tour-image">
 
-            </div>
 
-        <?php endforeach; ?>
+<img
+    src="<?= htmlspecialchars(
+        $tour['image']
+    ) ?>"
+    alt="<?= htmlspecialchars(
+        $tour['name']
+    ) ?>"
+>
 
-    </div>
+
+<div class="tour-badge">
+
+<?= htmlspecialchars(
+    $tour['level']
+) ?>
+
+</div>
+
+
+</div>
+
+
+
+<div class="tour-content">
+
+
+<div class="tour-type">
+Guided Snorkeling
+</div>
+
+
+<h3>
+
+<?= htmlspecialchars(
+    $tour['name']
+) ?>
+
+</h3>
+
+
+<p class="tour-description">
+
+<?= htmlspecialchars(
+    $tour['description']
+) ?>
+
+</p>
+
+
+
+<div class="tour-info">
+
+
+<div class="tour-info-row">
+
+<span class="tour-info-label">
+Location
+</span>
+
+<span class="tour-info-value">
+
+<?= htmlspecialchars(
+    $tour['location']
+) ?>
+
+</span>
+
+</div>
+
+
+
+<div class="tour-info-row">
+
+<span class="tour-info-label">
+Duration
+</span>
+
+<span class="tour-info-value">
+
+<?= htmlspecialchars(
+    $tour['duration']
+) ?>
+
+</span>
+
+</div>
+
+
+
+<div class="tour-info-row">
+
+<span class="tour-info-label">
+Experience
+</span>
+
+<span class="tour-info-value">
+
+<?= htmlspecialchars(
+    $tour['level']
+) ?>
+
+</span>
+
+</div>
+
+
+</div>
+
+
+
+<div class="tour-bottom">
+
+
+<span class="price-label">
+Starting at
+</span>
+
+
+<div class="tour-price">
+
+<strong>
+
+₱<?= number_format(
+    $tour['price']
+) ?>
+
+</strong>
+
+<span>
+/ person
+</span>
+
+</div>
+
+
+<a
+    href="booking.php?type=snorkeling&tour=<?= urlencode(
+        $tour['name']
+    ) ?>"
+    class="btn btn-primary"
+>
+Book This Tour
+</a>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<?php endforeach; ?>
+
+
+</div>
+
 
 </section>
 
 
+
 <!-- =========================
-     WHAT'S INCLUDED
+     WHY SNORKEL
+========================= -->
+
+<section class="why-snorkel">
+
+
+<div class="why-container">
+
+
+<div class="why-heading">
+
+
+<span class="section-eyebrow">
+Easy Island Adventure
+</span>
+
+
+<h2>
+A Different Way to Explore
+</h2>
+
+
+<p>
+Enjoy the water, discover the reefs, and experience
+another side of Siquijor with a guided snorkeling
+tour.
+</p>
+
+
+</div>
+
+
+
+<div class="why-grid">
+
+
+<div class="why-card">
+
+<div class="why-number">
+01
+</div>
+
+<h3>
+Beginner Friendly
+</h3>
+
+<p>
+Our snorkeling options include experiences suitable
+for beginners and guests who simply want to enjoy
+the water.
+</p>
+
+</div>
+
+
+
+<div class="why-card">
+
+<div class="why-number">
+02
+</div>
+
+<h3>
+Local Guidance
+</h3>
+
+<p>
+Explore with a local snorkeling guide who accompanies
+the group throughout the scheduled experience.
+</p>
+
+</div>
+
+
+
+<div class="why-card">
+
+<div class="why-number">
+03
+</div>
+
+<h3>
+Beautiful Locations
+</h3>
+
+<p>
+Visit selected snorkeling areas and enjoy views of
+Siquijor's reefs and marine scenery from the surface.
+</p>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- =========================
+     INCLUSIONS
 ========================= -->
 
 <section class="inclusions-section">
 
-    <div class="inclusions-box">
 
-        <span class="eyebrow-line" style="text-align:center;">
-            We've Got You Covered
-        </span>
-
-        <h2>What's Included?</h2>
-
-        <p class="inclusions-intro">
-            Everything you need for a safe and enjoyable
-            snorkeling experience is included in your tour.
-        </p>
+<div class="inclusions-container">
 
 
-        <div class="inclusion-grid">
+<div class="inclusions-text">
 
-            <?php foreach ($inclusions as $item): ?>
 
-                <div class="inclusion-item">
+<span class="section-eyebrow">
+We've Got You Covered
+</span>
 
-                    <span class="check">
-                        ✓
-                    </span>
 
-                    <?= htmlspecialchars($item) ?>
+<h2>
+What's Included?
+</h2>
 
-                </div>
 
-            <?php endforeach; ?>
+<p>
+Your snorkeling tour includes the basic equipment
+and support listed here, so you can focus on enjoying
+your experience around Siquijor.
+</p>
 
-        </div>
 
-    </div>
+</div>
+
+
+
+<div class="inclusion-grid">
+
+
+<?php foreach (
+    $inclusions as $item
+): ?>
+
+
+<div class="inclusion-item">
+
+
+<span class="check">
+✓
+</span>
+
+
+<?= htmlspecialchars(
+    $item
+) ?>
+
+
+</div>
+
+
+<?php endforeach; ?>
+
+
+</div>
+
+
+</div>
+
 
 </section>
+
 
 
 <!-- =========================
-     BOTTOM CTA
+     CTA
 ========================= -->
 
-<section class="tour-cta">
-
-    <h2>Ready to Explore the Reef?</h2>
-
-    <p>
-        Choose your snorkeling adventure and experience
-        Siquijor's beautiful waters with Azura Reef Dive.
-    </p>
-
-    <a
-        href="booking.php?type=snorkeling"
-        class="btn btn-primary"
-    >
-        Book a Snorkeling Tour
-    </a>
+<section class="tour-cta-section">
 
 
-    <div class="back-home">
+<div class="tour-cta">
 
-        <a href="index.php">
-            ← Back to Home
-        </a>
 
-    </div>
+<h2>
+Ready to Explore the Reef?
+</h2>
+
+
+<p>
+Choose your snorkeling adventure and experience
+Siquijor's beautiful waters with Azura Reef Dive.
+</p>
+
+
+<div class="cta-buttons">
+
+
+<a
+    href="booking.php?type=snorkeling"
+    class="cta-primary"
+>
+Book a Snorkeling Tour
+</a>
+
+
+<a
+    href="index.php"
+    class="cta-secondary"
+>
+Back to Home
+</a>
+
+
+</div>
+
+
+</div>
+
 
 </section>
 
 
+
+<!-- =========================
+     FOOTER
+========================= -->
+
+<footer class="tours-footer">
+
+
+<div class="tours-footer-inner">
+
+
+<p>
+© <?= date("Y") ?> Azura Reef Dive.
+Siquijor Island, Philippines.
+</p>
+
+
+<div>
+
+
+<a href="schedule.php">
+Dive Sites
+</a>
+
+&nbsp;&nbsp;&nbsp;
+
+<a href="pricing.php">
+Pricing
+</a>
+
+&nbsp;&nbsp;&nbsp;
+
+<a href="faq.php">
+FAQ
+</a>
+
+
+</div>
+
+
+</div>
+
+
+</footer>
+
+
 </body>
+
 </html>

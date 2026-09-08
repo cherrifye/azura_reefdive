@@ -1198,12 +1198,12 @@ function icon_svg($name)
             <div class="footer-bottom-links">
 
 
-                <a href="#">
+                <a href="privacy.php    ">
                     Privacy Policy
                 </a>
 
 
-                <a href="#">
+                <a href="terms.php    ">
                     Terms of Service
                 </a>
 
