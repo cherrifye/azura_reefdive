@@ -165,15 +165,25 @@ body {
 .admin-brand {
     display: flex;
     align-items: center;
+    gap: 10px;
 
     text-decoration: none;
+    flex-shrink: 0;
 }
 
 .admin-brand img {
-    width: 125px;
-    height: 52px;
+    width: 46px;
+    height: 46px;
 
     object-fit: contain;
+}
+
+.admin-brand-name {
+    font-family: "Fraunces", serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--teal-900);
+    white-space: nowrap;
 }
 
 .admin-center {
@@ -1029,10 +1039,14 @@ tbody tr:last-child td {
     class="admin-brand"
 >
 
-<img
-    src="images/daybbb .png"
-    alt="Azura Reef Dive"
->
+    <img
+        src="images/daybbb .png"
+        alt="Azura Reef Dive"
+    >
+
+    <span class="admin-brand-name">
+        Azura Reef
+    </span>
 
 </a>
 

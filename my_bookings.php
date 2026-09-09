@@ -840,6 +840,43 @@ body {
 
 }
 
+/* =========================
+   BACK TO HOME
+========================= */
+
+.bookings-back-bar {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 32px 20px 0;
+}
+
+.back-home-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+
+    color: var(--teal-900);
+    text-decoration: none;
+
+    font-size: .82rem;
+    font-weight: 700;
+
+    transition: .2s;
+}
+
+.back-home-link span {
+    font-size: 1.1rem;
+    transition: transform .2s;
+}
+
+.back-home-link:hover {
+    color: var(--teal-500);
+}
+
+.back-home-link:hover span {
+    transform: translateX(-3px);
+}
+
 </style>
 
 </head>
@@ -849,102 +886,17 @@ body {
 
 <div class="my-bookings-page">
 
+<div class="bookings-back-bar">
 
-<!-- =========================
-     HEADER
-========================= -->
+    <a
+        href="index.php"
+        class="back-home-link"
+    >
+        <span>←</span>
+        Back to Home
+    </a>
 
-<header class="site-header">
-
-    <div class="header-inner">
-
-        <a href="index.php" class="brand">
-            <img
-                src="images/daybbb .png"
-                alt="Azura Reef Dive"
-            >
-        </a>
-
-
-        <nav class="main-nav">
-
-            <a href="index.php">
-                Home
-            </a>
-
-            <a href="schedule.php">
-                Dive Sites
-            </a>
-
-            <a href="tours.php">
-                Snorkeling
-            </a>
-
-            <a href="courses.php">
-                Courses
-            </a>
-
-            <a href="pricing.php">
-                Pricing
-            </a>
-
-        </nav>
-
-
-        <div class="account-actions">
-
-            <span class="welcome-user">
-
-                Hi,
-                <strong>
-                    <?= htmlspecialchars(
-                        $_SESSION["first_name"]
-                        ?? "Customer"
-                    ) ?>
-                </strong>
-
-            </span>
-
-            <a
-                href="logout.php"
-                class="logout-link"
-            >
-                Log Out
-            </a>
-
-        </div>
-
-    </div>
-
-</header>
-
-
-<!-- =========================
-     HERO
-========================= -->
-
-<section class="bookings-hero">
-
-    <div class="hero-content">
-
-        <span class="hero-eyebrow">
-            YOUR AZURA JOURNEY
-        </span>
-
-        <h1>
-            Your Adventures,<br>
-            All in <em>One Place.</em>
-        </h1>
-
-        <p>
-            Keep track of your upcoming dives,
-            payment status, and completed
-            experiences with Azura Reef.
-        </p>
-
-    </div>
-
-</section>
+</div>
 
 
 <!-- =========================

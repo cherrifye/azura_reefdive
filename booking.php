@@ -4,6 +4,27 @@ session_start();
 
 require_once "db.php";
 
+/* =========================
+   CUSTOMER LOGIN REQUIRED
+========================= */
+
+if (!isset($_SESSION["user_id"])) {
+    header("Location: login.php");
+    exit;
+}
+
+
+/* =========================
+   ADMIN REDIRECT
+========================= */
+
+if (
+    isset($_SESSION["user_id"]) &&
+    ($_SESSION["role"] ?? "") === "admin"
+) {
+    header("Location: admin_dashboard.php");
+    exit;
+}
 
 /* =========================
    ADMIN CANNOT BOOK
@@ -845,26 +866,7 @@ textarea::placeholder {
 
 <body>
 
-<header class="site-header">
-    <div class="container header-inner">
-
-        <a href="index.php" class="brand">
-            <img src="images/daybbb .png" alt="Azura Reef Dive">
-        </a>
-
-        <nav class="main-nav">
-            <a href="index.php">Home</a>
-            <a href="schedule.php">Dive Sites</a>
-            <a href="tours.php">Snorkeling</a>
-            <a href="courses.php">Courses</a>
-            <a href="pricing.php">Pricing</a>
-        </nav>
-
-        <a href="booking.php" class="btn btn-dark">
-            Book a Dive
-        </a>
-
-    </div>
+<?php include "header.php"; ?>
 </header>
 
 <section class="booking-hero">
