@@ -2,51 +2,138 @@
 
 session_start();
 
+require_once "db.php";
+
+
 /*
-    AZURA REEF DIVE
-    Guided Fun Dive Schedule
+    INFORMATION THAT DOES NOT CHANGE
+    FOR EACH DIVE SITE
 */
 
-$dives = [
+$dive_details = [
 
-    [
-        'name' => 'Tubod Marine Sanctuary',
-        'description' => 'Explore colorful coral gardens and marine life with one of our experienced local guides.',
-        'date' => 'September 12, 2026',
-        'time' => '8:00 AM',
-        'duration' => '2–3 Hours',
-        'level' => 'Open Water Diver',
-        'price' => 2500,
-        'slots' => 6,
-        'image' => 'images/tubod.jpg'
-    
+    "Tubod Marine Sanctuary" => [
+        "description" =>
+            "Explore colorful coral gardens and marine life with one of our experienced local guides.",
+
+        "duration" => "2–3 Hours",
+        "level" => "Open Water Diver",
+        "price" => 2500,
+        "image" => "images/tubod.jpg"
     ],
 
-    [
-        'name' => 'Paliton Reef Dive',
-        'description' => 'Enjoy clear waters, beautiful reef formations, and a relaxing guided dive along the coast of Siquijor.',
-        'date' => 'September 14, 2026',
-        'time' => '9:00 AM',
-        'duration' => '2–3 Hours',
-        'level' => 'Open Water Diver',
-        'price' => 2800,
-        'slots' => 4,
-        'image' => 'images/paliton.jpg'
+    "Paliton Reef Dive" => [
+        "description" =>
+            "Enjoy clear waters, beautiful reef formations, and a relaxing guided dive along the coast of Siquijor.",
+
+        "duration" => "2–3 Hours",
+        "level" => "Open Water Diver",
+        "price" => 2800,
+        "image" => "images/paliton.jpg"
     ],
 
-    [
-        'name' => 'Maite Reef Adventure',
-        'description' => 'Discover Siquijor’s underwater scenery while exploring a lively reef with our professional dive team.',
-        'date' => 'September 17, 2026',
-        'time' => '7:30 AM',
-        'duration' => '3 Hours',
-        'level' => 'Open Water Diver',
-        'price' => 3000,
-        'slots' => 5,
-        'image' => 'images/maite.jpg'
+    "Maite Reef Adventure" => [
+        "description" =>
+            "Discover Siquijor’s underwater scenery while exploring a lively reef with our professional dive team.",
+
+        "duration" => "3 Hours",
+        "level" => "Open Water Diver",
+        "price" => 3000,
+        "image" => "images/maite.jpg"
     ]
 
 ];
+
+
+/*
+    GET THE SCHEDULES CREATED BY ADMIN
+*/
+
+$sql = "
+    SELECT
+        service_name,
+        schedule_date,
+        schedule_time,
+        available_slots
+    FROM dive_schedules
+    WHERE
+        is_available = 1
+        AND available_slots > 0
+        AND schedule_date >= CURDATE()
+        AND service_name IN (
+            'Tubod Marine Sanctuary',
+            'Paliton Reef Dive',
+            'Maite Reef Adventure'
+        )
+    ORDER BY
+        schedule_date ASC,
+        schedule_time ASC
+";
+
+
+$result = $conn->query($sql);
+
+$dives = [];
+
+
+if ($result) {
+
+    while ($schedule = $result->fetch_assoc()) {
+
+        $name = $schedule["service_name"];
+
+        if (!isset($dive_details[$name])) {
+            continue;
+        }
+
+
+        $details =
+            $dive_details[$name];
+
+
+        $dives[] = [
+
+            "name" =>
+                $name,
+
+            "description" =>
+                $details["description"],
+
+            "date" =>
+                date(
+                    "F j, Y",
+                    strtotime(
+                        $schedule["schedule_date"]
+                    )
+                ),
+
+            "time" =>
+                date(
+                    "g:i A",
+                    strtotime(
+                        $schedule["schedule_time"]
+                    )
+                ),
+
+            "duration" =>
+                $details["duration"],
+
+            "level" =>
+                $details["level"],
+
+            "price" =>
+                $details["price"],
+
+            "slots" =>
+                (int)
+                $schedule["available_slots"],
+
+            "image" =>
+                $details["image"]
+
+        ];
+    }
+}
 
 ?>
 
@@ -1339,6 +1426,39 @@ destinations.
 <div class="dive-list">
 
 
+<?php if (empty($dives)): ?>
+
+<div
+    style="
+        background:white;
+        border:1px solid var(--border);
+        border-radius:18px;
+        padding:40px;
+        text-align:center;
+        color:var(--muted);
+    "
+>
+
+    <h3
+        style="
+            color:var(--teal-900);
+            font-family:'Fraunces',serif;
+            margin-bottom:8px;
+        "
+    >
+        No Upcoming Dives Yet
+    </h3>
+
+    <p>
+        New dive schedules will appear here
+        once they are added by our team.
+    </p>
+
+</div>
+
+<?php else: ?>
+
+
 <?php foreach (
     $dives as $dive
 ): ?>
@@ -1529,6 +1649,8 @@ Book This Dive
 
 
 <?php endforeach; ?>
+
+<?php endif; ?>
 
 
 </div>

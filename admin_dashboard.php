@@ -1061,8 +1061,8 @@ Hi,
 </span>
 
 
-<a href="index.php">
-Website
+<a href="manage_schedule.php">
+Manage Schedule
 </a>
 
 
@@ -1140,14 +1140,6 @@ bookings and registered customers.
 </p>
 
 </div>
-
-
-<a
-    href="index.php"
-    class="view-site-btn"
->
-View Website
-</a>
 
 </div>
 

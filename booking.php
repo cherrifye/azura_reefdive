@@ -1,23 +1,109 @@
 <?php
+
 session_start();
 
-$type   = $_GET['type'] ?? '';
-$dive   = $_GET['dive'] ?? '';
-$tour   = $_GET['tour'] ?? '';
-$gear   = $_GET['gear'] ?? '';
-$course = $_GET['course'] ?? '';
+require_once "db.php";
 
-$service_name = '';
+
+/* =========================
+   ADMIN CANNOT BOOK
+========================= */
+
+if (
+    isset($_SESSION["user_id"]) &&
+    ($_SESSION["role"] ?? "") === "admin"
+) {
+    header("Location: admin_dashboard.php");
+    exit;
+}
+
+
+/* =========================
+   URL PRESELECTION
+========================= */
+
+$type   = $_GET["type"] ?? "";
+$dive   = $_GET["dive"] ?? "";
+$tour   = $_GET["tour"] ?? "";
+$gear   = $_GET["gear"] ?? "";
+$course = $_GET["course"] ?? "";
+
+$service_name = "";
 
 if (!empty($dive)) {
+
     $service_name = $dive;
+
 } elseif (!empty($tour)) {
+
     $service_name = $tour;
+
 } elseif (!empty($gear)) {
+
     $service_name = $gear;
+
 } elseif (!empty($course)) {
+
     $service_name = $course;
+
 }
+
+
+/* =========================
+   GET AVAILABLE SCHEDULES
+========================= */
+
+$schedule_data = [];
+
+$schedule_result =
+    $conn->query(
+        "
+        SELECT
+            id,
+            service_name,
+            schedule_date,
+            schedule_time,
+            available_slots
+        FROM dive_schedules
+        WHERE
+            is_available = 1
+            AND available_slots > 0
+            AND schedule_date >= CURDATE()
+        ORDER BY
+            schedule_date ASC,
+            schedule_time ASC
+        "
+    );
+
+
+if ($schedule_result) {
+
+    while (
+        $row =
+            $schedule_result->fetch_assoc()
+    ) {
+
+        $schedule_data[] = [
+            "id" =>
+                (int) $row["id"],
+
+            "service_name" =>
+                $row["service_name"],
+
+            "date" =>
+                $row["schedule_date"],
+
+            "time" =>
+                $row["schedule_time"],
+
+            "slots" =>
+                (int) $row["available_slots"]
+        ];
+
+    }
+
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -911,11 +997,22 @@ Select a service first
 
 <label>Booking Date</label>
 
-<input
-    type="date"
+<select
     name="booking_date"
     id="booking_date"
     required
+>
+
+<option value="">
+Select a service first
+</option>
+
+</select>
+
+<input
+    type="date"
+    id="gear_booking_date"
+    style="display:none; margin-top:8px;"
 >
 
 </div>
@@ -929,30 +1026,27 @@ Select a service first
 
 <select
     name="booking_time"
+    id="booking_time"
     required
 >
 
 <option value="">
-Choose time
-</option>
-
-<option value="7:30 AM">
-7:30 AM
-</option>
-
-<option value="8:00 AM">
-8:00 AM
-</option>
-
-<option value="9:00 AM">
-9:00 AM
-</option>
-
-<option value="1:00 PM">
-1:00 PM
+Select a date first
 </option>
 
 </select>
+
+<input
+    type="time"
+    id="gear_booking_time"
+    style="display:none; margin-top:8px;"
+>
+
+<input
+    type="hidden"
+    name="schedule_id"
+    id="schedule_id"
+>
 
 </div>
 
@@ -1482,6 +1576,369 @@ const serviceOptions = {
 const preselectedService =
 <?= json_encode($service_name) ?>;
 
+const scheduleData =
+<?= json_encode($schedule_data) ?>;
+
+const bookingDate =
+document.getElementById('booking_date');
+
+const bookingTime =
+document.getElementById('booking_time');
+
+const scheduleId =
+document.getElementById('schedule_id');
+
+const gearBookingDate =
+document.getElementById('gear_booking_date');
+
+const gearBookingTime =
+document.getElementById('gear_booking_time');
+
+
+/* =========================
+   GEAR DATE AND TIME
+========================= */
+
+function updateGearDateTime() {
+
+    const isGear =
+        serviceType.value === 'gear';
+
+    if (isGear) {
+
+        /* Hide schedule dropdowns */
+        bookingDate.style.display = 'none';
+        bookingTime.style.display = 'none';
+
+        bookingDate.required = false;
+        bookingTime.required = false;
+
+        /* Show manual gear fields */
+        gearBookingDate.style.display = 'block';
+        gearBookingTime.style.display = 'block';
+
+        gearBookingDate.required = true;
+        gearBookingTime.required = true;
+
+        /* Prevent past dates */
+        const today =
+            new Date()
+                .toISOString()
+                .split('T')[0];
+
+        gearBookingDate.min = today;
+
+        scheduleId.value = '';
+
+    } else {
+
+        /* Show schedule dropdowns */
+        bookingDate.style.display = 'block';
+        bookingTime.style.display = 'block';
+
+        bookingDate.required = true;
+        bookingTime.required = true;
+
+        /* Hide manual gear fields */
+        gearBookingDate.style.display = 'none';
+        gearBookingTime.style.display = 'none';
+
+        gearBookingDate.required = false;
+        gearBookingTime.required = false;
+
+        gearBookingDate.value = '';
+        gearBookingTime.value = '';
+
+    }
+
+}
+
+
+function formatDate(dateString) {
+
+    const parts =
+        dateString.split('-');
+
+    const date =
+        new Date(
+            parts[0],
+            parts[1] - 1,
+            parts[2]
+        );
+
+    return date.toLocaleDateString(
+        'en-US',
+        {
+            month: 'long',
+            day: 'numeric',
+            year: 'numeric'
+        }
+    );
+
+}
+
+
+function formatTime(timeString) {
+
+    const parts =
+        timeString.split(':');
+
+    let hour =
+        parseInt(parts[0]);
+
+    const minute =
+        parts[1];
+
+    const period =
+        hour >= 12
+            ? 'PM'
+            : 'AM';
+
+    hour =
+        hour % 12 || 12;
+
+    return hour +
+        ':' +
+        minute +
+        ' ' +
+        period;
+
+}
+
+
+/* =========================
+   AVAILABLE DATES
+========================= */
+
+function updateAvailableDates() {
+
+    bookingDate.innerHTML =
+        '<option value="">Select booking date</option>';
+
+    bookingTime.innerHTML =
+        '<option value="">Select a date first</option>';
+
+    scheduleId.value = '';
+
+    const selectedService =
+        serviceName.value;
+
+    const selectedType =
+        serviceType.value;
+
+
+    /*
+        Gear rental does not use
+        the dive schedule system.
+    */
+
+    if (selectedType === 'gear') {
+
+        bookingDate.innerHTML =
+            '<option value="">Choose date below</option>';
+
+        return;
+
+    }
+
+
+    if (!selectedService) {
+
+        bookingDate.innerHTML =
+            '<option value="">Select a service first</option>';
+
+        return;
+
+    }
+
+
+    const dates = [];
+
+    scheduleData.forEach(
+        function (schedule) {
+
+            if (
+                schedule.service_name ===
+                selectedService &&
+                !dates.includes(
+                    schedule.date
+                )
+            ) {
+
+                dates.push(
+                    schedule.date
+                );
+
+            }
+
+        }
+    );
+
+
+    if (dates.length === 0) {
+
+        bookingDate.innerHTML =
+            '<option value="">No available schedules</option>';
+
+        return;
+
+    }
+
+
+    dates.forEach(
+        function (date) {
+
+            const option =
+                document.createElement(
+                    'option'
+                );
+
+            option.value =
+                date;
+
+            option.textContent =
+                formatDate(date);
+
+            bookingDate.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================
+   AVAILABLE TIMES
+========================= */
+
+function updateAvailableTimes() {
+
+    bookingTime.innerHTML =
+        '<option value="">Select booking time</option>';
+
+    scheduleId.value = '';
+
+    const selectedService =
+        serviceName.value;
+
+    const selectedDate =
+        bookingDate.value;
+
+
+    if (
+        !selectedService ||
+        !selectedDate
+    ) {
+
+        bookingTime.innerHTML =
+            '<option value="">Select a date first</option>';
+
+        return;
+
+    }
+
+
+    const matchingSchedules =
+        scheduleData.filter(
+            function (schedule) {
+
+                return (
+                    schedule.service_name ===
+                        selectedService &&
+                    schedule.date ===
+                        selectedDate &&
+                    schedule.slots > 0
+                );
+
+            }
+        );
+
+
+    if (
+        matchingSchedules.length === 0
+    ) {
+
+        bookingTime.innerHTML =
+            '<option value="">No available times</option>';
+
+        return;
+
+    }
+
+
+    matchingSchedules.forEach(
+        function (schedule) {
+
+            const option =
+                document.createElement(
+                    'option'
+                );
+
+            option.value =
+                schedule.time;
+
+            option.dataset.scheduleId =
+                schedule.id;
+
+            option.dataset.slots =
+                schedule.slots;
+
+            option.textContent =
+                formatTime(
+                    schedule.time
+                ) +
+                ' — ' +
+                schedule.slots +
+                (
+                    schedule.slots === 1
+                        ? ' slot available'
+                        : ' slots available'
+                );
+
+            bookingTime.appendChild(
+                option
+            );
+
+        }
+    );
+
+}
+
+
+/* =========================
+   SELECTED SCHEDULE
+========================= */
+
+bookingDate.addEventListener(
+    'change',
+    updateAvailableTimes
+);
+
+
+bookingTime.addEventListener(
+    'change',
+    function () {
+
+        const selectedOption =
+            bookingTime.options[
+                bookingTime.selectedIndex
+            ];
+
+        scheduleId.value =
+            selectedOption.dataset
+                .scheduleId || '';
+
+    }
+);
+
+
+serviceName.addEventListener(
+    'change',
+    updateAvailableDates
+);
+
 
 function updateServiceOptions(
     selectedService = ''
@@ -1623,16 +2080,22 @@ serviceType.addEventListener(
 
         updateEquipmentField();
 
+        updateGearDateTime();
+
+        updateAvailableDates();
     }
 );
 
-
-updateEquipmentField();
 
 updateServiceOptions(
     preselectedService
 );
 
+updateEquipmentField();
+
+updateGearDateTime();
+
+updateAvailableDates();
 
 
 /* =========================
@@ -1824,44 +2287,61 @@ expirationDate.addEventListener(
 );
 
 
-
 /* =========================
-   PREVENT PAST DATES
+   GEAR BOOKING SUBMISSION
 ========================= */
 
-const bookingDate =
-document.getElementById(
-    'booking_date'
+const bookingForm =
+document.querySelector('.booking-form');
+
+bookingForm.addEventListener(
+    'submit',
+    function () {
+
+        if (
+            serviceType.value === 'gear'
+        ) {
+
+            /* Put manual gear values
+               into the actual fields
+               sent to PHP */
+
+            bookingDate.innerHTML = '';
+
+            const dateOption =
+                document.createElement('option');
+
+            dateOption.value =
+                gearBookingDate.value;
+
+            dateOption.selected = true;
+
+            bookingDate.appendChild(
+                dateOption
+            );
+
+
+            bookingTime.innerHTML = '';
+
+            const timeOption =
+                document.createElement('option');
+
+            timeOption.value =
+                gearBookingTime.value;
+
+            timeOption.selected = true;
+
+            bookingTime.appendChild(
+                timeOption
+            );
+
+            scheduleId.value = '';
+
+        }
+
+    }
 );
 
-if (bookingDate) {
-
-    const today =
-        new Date();
-
-    const year =
-        today.getFullYear();
-
-    const month =
-        String(
-            today.getMonth() + 1
-        ).padStart(
-            2,
-            '0'
-        );
-
-    const day =
-        String(
-            today.getDate()
-        ).padStart(
-            2,
-            '0'
-        );
-
-    bookingDate.min =
-        `${year}-${month}-${day}`;
-
-}
 
 </script>
 

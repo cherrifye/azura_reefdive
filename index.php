@@ -1,9 +1,14 @@
 <?php
 session_start();
 
-/**
- * Azura Reef Dive — Homepage
- */
+if (
+    isset($_SESSION["user_id"]) &&
+    ($_SESSION["role"] ?? "") === "admin"
+) {
+    header("Location: admin_dashboard.php");
+    exit;
+}
+
 
 $brand = [
     'name'    => 'Azura Reef',
