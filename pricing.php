@@ -14,7 +14,7 @@ $gear = [
         'description' => 'A complete rental package for divers who need all essential scuba equipment.',
         'includes' => 'BCD, regulator, wetsuit, mask, fins, weights, tank',
         'price' => 1200,
-        'image' => 'images/scubawoman.jpg'
+        'image' => 'images/complete.jpg'
     ],
 
     [
@@ -22,7 +22,7 @@ $gear = [
         'description' => 'Comfortable and well-maintained buoyancy control device for your dive.',
         'includes' => 'BCD only',
         'price' => 350,
-        'image' => 'images/diverfish.jpg'
+        'image' => 'images/bcd.jpg'
     ],
 
     [
@@ -30,7 +30,7 @@ $gear = [
         'description' => 'Reliable regulator set checked and maintained for safe diving.',
         'includes' => 'Primary regulator, alternate air source, pressure gauge',
         'price' => 300,
-        'image' => 'images/waterdive.jpg'
+        'image' => 'images/regulator.jpg'
     ],
 
     [
@@ -38,7 +38,7 @@ $gear = [
         'description' => 'Comfortable wetsuit suitable for warm tropical waters around Siquijor.',
         'includes' => 'Wetsuit only',
         'price' => 250,
-        'image' => 'images/corals.jpg'
+        'image' => 'images/wetsuit.jpg'
     ],
 
     [
@@ -46,7 +46,7 @@ $gear = [
         'description' => 'Perfect for divers or snorkelers who only need basic water gear.',
         'includes' => 'Mask and fins',
         'price' => 200,
-        'image' => 'images/watercorals.jpg'
+        'image' => 'images/maskfins.jpg'
     ],
 
     [
@@ -54,7 +54,7 @@ $gear = [
         'description' => 'Standard scuba tank prepared and inspected by our dive team.',
         'includes' => 'One scuba tank',
         'price' => 400,
-        'image' => 'images/waterdive.jpg'
+        'image' => 'images/tank.jpg'
     ]
 
 ];

@@ -16,7 +16,7 @@ $tours = [
         'location' => 'Tubod Marine Sanctuary',
         'level' => 'Beginner Friendly',
         'price' => 1200,
-        'image' => 'images/watercorals.jpg'
+        'image' => 'images/coralgardenjpg.jpg'
     ],
 
     [
@@ -26,7 +26,7 @@ $tours = [
         'location' => 'Siquijor Coastal Reefs',
         'level' => 'Beginner Friendly',
         'price' => 1500,
-        'image' => 'images/waterdive.jpg'
+        'image' => 'images/turtle.jpg'
     ],
 
     [
@@ -36,7 +36,7 @@ $tours = [
         'location' => 'Selected Siquijor Reefs',
         'level' => 'All Experience Levels',
         'price' => 2000,
-        'image' => 'images/diverfish.jpg'
+        'image' => 'images/islandsnorkeling.jpg'
     ]
 
 ];

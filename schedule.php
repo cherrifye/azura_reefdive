@@ -18,7 +18,8 @@ $dives = [
         'level' => 'Open Water Diver',
         'price' => 2500,
         'slots' => 6,
-        'image' => 'images/corals.jpg'
+        'image' => 'images/tubod.jpg'
+    
     ],
 
     [
@@ -30,7 +31,7 @@ $dives = [
         'level' => 'Open Water Diver',
         'price' => 2800,
         'slots' => 4,
-        'image' => 'images/diverfish.jpg'
+        'image' => 'images/paliton.jpg'
     ],
 
     [
@@ -42,7 +43,7 @@ $dives = [
         'level' => 'Open Water Diver',
         'price' => 3000,
         'slots' => 5,
-        'image' => 'images/watercorals.jpg'
+        'image' => 'images/maite.jpg'
     ]
 
 ];
