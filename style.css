@@ -416,17 +416,31 @@
 }
 
 .nav-wrap {
-    width: min(1200px, 92%);
-    margin: 0 auto;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0 55px;
     min-height: 82px;
 
-    display: flex;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
     align-items: center;
-    justify-content: space-between;
-    gap: 24px;
+    gap: 30px;
 }
 
 .brand {
+    justify-self: start;
+}
+
+.nav-links {
+    justify-self: center;
+}
+
+.nav-cta {
+    justify-self: end;
+}
+.brand {
+  
     display: flex;
     align-items: center;
     gap: 10px;
@@ -459,8 +473,10 @@
     color: #365b56;
     text-decoration: none;
     font-family: "Inter", sans-serif;
-    font-size: 14px;
+
+    font-size: 16px;
     font-weight: 600;
+
     white-space: nowrap;
 }
 
@@ -476,7 +492,7 @@
 
 .nav-user {
     font-family: "Inter", sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     color: #617a75;
     white-space: nowrap;
 }
@@ -486,7 +502,7 @@
     color: #0d3a37;
     text-decoration: none;
     font-family: "Inter", sans-serif;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     white-space: nowrap;
 }
@@ -700,4 +716,22 @@
         flex-direction: column;
     }
 
+}
+/* FINAL NAVBAR FONT SIZE */
+
+.nav-links a {
+    font-size: 16px !important;
+}
+
+.nav-user {
+    font-size: 16px !important;
+}
+
+.nav-account-link,
+.nav-logout {
+    font-size: 16px !important;
+}
+
+.nav-cta .btn-dark {
+    font-size: 15px !important;
 }

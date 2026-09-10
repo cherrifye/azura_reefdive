@@ -124,6 +124,94 @@ if ($schedule_result) {
     }
 
 }
+/* =========================
+   GET CUSTOMER SERVICES
+========================= */
+
+/*
+    Keep the original Azura Reef services so the
+    booking dropdowns never disappear. Active
+    admin services are added or replace a matching
+    original service.
+*/
+
+$service_data = [
+    "dive" => [
+        ["name" => "Tubod Marine Sanctuary", "price" => null],
+        ["name" => "Paliton Reef Dive", "price" => null],
+        ["name" => "Maite Reef Adventure", "price" => null]
+    ],
+    "snorkeling" => [
+        ["name" => "Coral Garden Snorkeling", "price" => null],
+        ["name" => "Turtle & Reef Adventure", "price" => null],
+        ["name" => "Island Snorkeling Experience", "price" => null]
+    ],
+    "course" => [
+        ["name" => "Discover Scuba Diving", "price" => null],
+        ["name" => "Open Water Certification", "price" => null],
+        ["name" => "Advanced Open Water", "price" => null]
+    ],
+    "gear" => [
+        ["name" => "Complete Scuba Set", "price" => 1200],
+        ["name" => "BCD Rental", "price" => 350],
+        ["name" => "Regulator Rental", "price" => 300],
+        ["name" => "Wetsuit Rental", "price" => 250],
+        ["name" => "Mask & Fins Set", "price" => 200],
+        ["name" => "Tank Rental", "price" => 400]
+    ]
+];
+
+$service_result = $conn->query(
+    "
+    SELECT
+        service_type,
+        service_name,
+        price,
+        is_active
+    FROM services
+    ORDER BY service_type ASC, service_name ASC
+    "
+);
+
+if ($service_result) {
+
+    while ($service = $service_result->fetch_assoc()) {
+
+        /* Do not overwrite $type; it stores the URL selection. */
+        $service_type = $service["service_type"];
+
+        if (!isset($service_data[$service_type])) {
+            continue;
+        }
+
+        $matching_index = null;
+
+        foreach ($service_data[$service_type] as $index => $existing_service) {
+            if (strcasecmp($existing_service["name"], $service["service_name"]) === 0) {
+                $matching_index = $index;
+                break;
+            }
+        }
+
+        if ((int) $service["is_active"] !== 1) {
+            if ($matching_index !== null) {
+                array_splice($service_data[$service_type], $matching_index, 1);
+            }
+            continue;
+        }
+
+        $service_item = [
+            "name" => $service["service_name"],
+            "price" => (float) $service["price"]
+        ];
+
+        if ($matching_index !== null) {
+            $service_data[$service_type][$matching_index] = $service_item;
+        } else {
+            $service_data[$service_type][] = $service_item;
+        }
+    }
+}
 
 ?>
 
@@ -1268,19 +1356,6 @@ Other
 
 </div>
 
-
-<div class="form-group full">
-
-<label>Additional Notes</label>
-
-<textarea
-    name="notes"
-    placeholder="Optional requests or notes..."
-></textarea>
-
-</div>
-
-
 </div>
 
 </div>
@@ -1543,36 +1618,12 @@ document.querySelectorAll(
 );
 
 
-const serviceOptions = {
-
-    dive: [
-        'Tubod Marine Sanctuary',
-        'Paliton Reef Dive',
-        'Maite Reef Adventure'
-    ],
-
-    snorkeling: [
-        'Coral Garden Snorkeling',
-        'Turtle & Reef Adventure',
-        'Island Snorkeling Experience'
-    ],
-
-    course: [
-        'Discover Scuba Diving',
-        'Open Water Certification',
-        'Advanced Open Water'
-    ],
-
-    gear: [
-        'Complete Scuba Set',
-        'BCD Rental',
-        'Regulator Rental',
-        'Wetsuit Rental',
-        'Mask & Fins Set',
-        'Tank Rental'
-    ]
-
-};
+const serviceOptions =
+<?= json_encode(
+    $service_data,
+    JSON_UNESCAPED_UNICODE |
+    JSON_UNESCAPED_SLASHES
+) ?>;
 
 
 const preselectedService =
@@ -1959,32 +2010,24 @@ function updateServiceOptions(
         return;
     }
 
-
     serviceOptions[selectedType].forEach(
         function (service) {
 
             const option =
                 document.createElement('option');
 
-            option.value = service;
+            option.value = service.name;
 
-            option.textContent = service;
+           option.textContent = service.name;
 
-            if (
-                service === selectedService
-            ) {
+            if (service.name === selectedService) {
                 option.selected = true;
             }
 
-            serviceName.appendChild(
-                option
-            );
-
+            serviceName.appendChild(option);
         }
     );
-
 }
-
 
 
 /* =========================

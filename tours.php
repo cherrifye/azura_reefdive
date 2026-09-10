@@ -2,6 +2,8 @@
 
 session_start();
 
+require_once "db.php";
+
 /*
     AZURA REEF DIVE
     Snorkeling Tours
@@ -40,6 +42,82 @@ $tours = [
     ]
 
 ];
+
+/* =========================
+   ADD ADMIN SNORKELING TOURS
+========================= */
+
+$result = $conn->query(
+    "
+    SELECT
+        service_name,
+        description,
+        image,
+        price,
+        is_active
+    FROM services
+    WHERE service_type = 'snorkeling'
+    ORDER BY created_at ASC
+    "
+);
+
+if ($result) {
+
+    while ($row = $result->fetch_assoc()) {
+
+        $matching_index = null;
+
+        foreach ($tours as $index => $existing_tour) {
+
+            if (
+                strcasecmp(
+                    $existing_tour["name"],
+                    $row["service_name"]
+                ) === 0
+            ) {
+                $matching_index = $index;
+                break;
+            }
+        }
+
+        if ((int) $row["is_active"] !== 1) {
+
+            if ($matching_index !== null) {
+                array_splice($tours, $matching_index, 1);
+            }
+
+            continue;
+        }
+
+        if ($matching_index !== null) {
+
+            $tours[$matching_index]["description"] =
+                $row["description"] ?? $tours[$matching_index]["description"];
+
+            $tours[$matching_index]["price"] =
+                (float) $row["price"];
+
+            if (!empty($row["image"])) {
+                $tours[$matching_index]["image"] = $row["image"];
+            }
+
+        } else {
+
+            $tours[] = [
+                "name" => $row["service_name"],
+                "description" => $row["description"] ?? "",
+                "duration" => "Flexible",
+                "location" => "Siquijor Island",
+                "level" => "All Experience Levels",
+                "price" => (float) $row["price"],
+                "image" => !empty($row["image"])
+                    ? $row["image"]
+                    : "images/watercorals.jpg"
+            ];
+        }
+    }
+}
+
 
 
 $inclusions = [

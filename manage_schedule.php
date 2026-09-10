@@ -3,6 +3,15 @@
 session_start();
 
 require_once "db.php";
+$service_options = $conn->query(
+    "
+    SELECT service_name
+    FROM services
+    WHERE is_active = 1
+      AND service_type IN ('dive', 'snorkeling', 'course')
+    ORDER BY service_type ASC, service_name ASC
+    "
+);
 
 
 if (
@@ -691,6 +700,30 @@ Open Water Certification
 <option>
 Advanced Open Water
 </option>
+
+<?php if (
+    $service_options &&
+    $service_options->num_rows > 0
+): ?>
+
+    <?php while (
+        $service =
+            $service_options->fetch_assoc()
+    ): ?>
+
+        <option value="<?= htmlspecialchars(
+            $service["service_name"]
+        ) ?>">
+
+            <?= htmlspecialchars(
+                $service["service_name"]
+            ) ?>
+
+        </option>
+
+    <?php endwhile; ?>
+
+<?php endif; ?>
 
 </select>
 

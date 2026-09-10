@@ -2,6 +2,8 @@
 
 session_start();
 
+require_once "db.php";
+
 /*
     AZURA REEF DIVE
     Premium Gear / Pricing Page
@@ -58,6 +60,38 @@ $gear = [
     ]
 
 ];
+
+/* =========================
+   ADD DATABASE GEAR
+========================= */
+
+$result = $conn->query(
+    "
+    SELECT
+        service_name,
+        description,
+        image,
+        price
+    FROM services
+    WHERE service_type = 'gear'
+      AND is_active = 1
+    ORDER BY created_at DESC
+    "
+);
+
+if ($result) {
+
+    while ($row = $result->fetch_assoc()) {
+
+        $gear[] = [
+            "name" => $row["service_name"],
+            "description" => $row["description"] ?? "",
+            "includes" => "Rental equipment",
+            "price" => (float) $row["price"],
+            "image" => $row["image"] ?? ""
+        ];
+    }
+}
 
 ?>
 

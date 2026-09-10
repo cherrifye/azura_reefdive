@@ -44,7 +44,77 @@ $dive_details = [
 
 ];
 
+/*
+    GET DIVE SERVICES CREATED BY ADMIN
+*/
 
+$service_result = $conn->query(
+    "
+    SELECT
+        service_name,
+        description,
+        image,
+        price,
+        is_active
+    FROM services
+    WHERE service_type = 'dive'
+    ORDER BY created_at ASC
+    "
+);
+
+if ($service_result) {
+
+    while ($service = $service_result->fetch_assoc()) {
+
+        $name = $service["service_name"];
+
+        if ((int) $service["is_active"] !== 1) {
+
+            if (isset($dive_details[$name])) {
+                unset($dive_details[$name]);
+            }
+
+            continue;
+        }
+
+        if (isset($dive_details[$name])) {
+
+            $dive_details[$name]["description"] =
+                $service["description"] ?? "";
+
+            $dive_details[$name]["price"] =
+                (float) $service["price"];
+
+            if (!empty($service["image"])) {
+                $dive_details[$name]["image"] =
+                    $service["image"];
+            }
+
+        } else {
+
+            $dive_details[$name] = [
+
+                "description" =>
+                    $service["description"] ?? "",
+
+                "duration" =>
+                    "2–3 Hours",
+
+                "level" =>
+                    "Open Water Diver",
+
+                "price" =>
+                    (float) $service["price"],
+
+                "image" =>
+                    !empty($service["image"])
+                        ? $service["image"]
+                        : "images/corals.jpg"
+
+            ];
+        }
+    }
+}
 /*
     GET THE SCHEDULES CREATED BY ADMIN
 */
@@ -60,11 +130,6 @@ $sql = "
         is_available = 1
         AND available_slots > 0
         AND schedule_date >= CURDATE()
-        AND service_name IN (
-            'Tubod Marine Sanctuary',
-            'Paliton Reef Dive',
-            'Maite Reef Adventure'
-        )
     ORDER BY
         schedule_date ASC,
         schedule_time ASC

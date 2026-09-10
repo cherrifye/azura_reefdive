@@ -353,6 +353,10 @@ if ($booking_date < $today) {
    VALID SERVICES
 ========================= */
 
+/* =========================
+   VALID SERVICES
+========================= */
+
 $allowed_services = [
 
     "dive" => [
@@ -385,17 +389,73 @@ $allowed_services = [
 ];
 
 
+/* ADD ACTIVE ADMIN-CREATED SERVICES */
+
+$service_stmt = $conn->prepare(
+    "
+    SELECT service_name
+    FROM services
+    WHERE service_type = ?
+      AND is_active = 1
+    "
+);
+
+if ($service_stmt) {
+
+    $service_stmt->bind_param(
+        "s",
+        $service_type
+    );
+
+    $service_stmt->execute();
+
+    $service_result =
+        $service_stmt->get_result();
+
+    while (
+        $service_row =
+            $service_result->fetch_assoc()
+    ) {
+
+        if (
+            isset(
+                $allowed_services[
+                    $service_type
+                ]
+            )
+        ) {
+
+            $allowed_services[
+                $service_type
+            ][] =
+                $service_row[
+                    "service_name"
+                ];
+        }
+    }
+
+    $service_stmt->close();
+}
+
+
+/* CHECK SELECTED SERVICE */
+
 if (
-    !isset($allowed_services[$service_type]) ||
+    !isset(
+        $allowed_services[
+            $service_type
+        ]
+    ) ||
     !in_array(
         $service_name,
-        $allowed_services[$service_type],
+        $allowed_services[
+            $service_type
+        ],
         true
     )
 ) {
 
     die("Invalid service selected.");
-
 }
 
 

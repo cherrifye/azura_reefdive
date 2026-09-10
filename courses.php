@@ -2,6 +2,8 @@
 
 session_start();
 
+require_once "db.php";
+
 /*
     AZURA REEF DIVE
     Learn to Dive / Courses
@@ -40,6 +42,64 @@ $courses = [
     ]
 
 ];
+
+
+/* =========================
+   ADD ADMIN DIVING COURSES
+========================= */
+
+$result = $conn->query(
+    "
+    SELECT
+        service_name,
+        description,
+        image,
+        price,
+        is_active
+    FROM services
+    WHERE service_type = 'course'
+    ORDER BY created_at ASC
+    "
+);
+
+if ($result) {
+    while ($row = $result->fetch_assoc()) {
+        $matching_index = null;
+
+        foreach ($courses as $index => $existing_course) {
+            if (strcasecmp($existing_course["name"], $row["service_name"]) === 0) {
+                $matching_index = $index;
+                break;
+            }
+        }
+
+        if ((int) $row["is_active"] !== 1) {
+            if ($matching_index !== null) {
+                array_splice($courses, $matching_index, 1);
+            }
+            continue;
+        }
+
+        if ($matching_index !== null) {
+            $courses[$matching_index]["description"] = $row["description"] ?? "";
+            $courses[$matching_index]["price"] = (float) $row["price"];
+
+            if (!empty($row["image"])) {
+                $courses[$matching_index]["image"] = $row["image"];
+            }
+        } else {
+            $courses[] = [
+                "name" => $row["service_name"],
+                "description" => $row["description"] ?? "",
+                "duration" => "Flexible",
+                "level" => "Dive Course",
+                "requirement" => "Contact us for requirements",
+                "price" => (float) $row["price"],
+                "image" => !empty($row["image"]) ? $row["image"] : "images/scubawoman.jpg"
+            ];
+        }
+    }
+}
 
 
 $included = [

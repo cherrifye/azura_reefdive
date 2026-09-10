@@ -749,9 +749,9 @@ Demo card payment recorded successfully.
 
 <a
     href="index.php"
-    class="btn btn-outline"
+    class="btn btn-dark"
 >
-Home
+Back to Home
 </a>
 
 

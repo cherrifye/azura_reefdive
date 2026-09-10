@@ -84,13 +84,14 @@ $bookings = $stmt->get_result();
 ========================= */
 
 body {
-    background: var(--mint-50);
+    margin: 0;
+    background: #eaf7f5;
 }
 
 .my-bookings-page {
+    position: relative;
     min-height: 100vh;
 }
-
 
 /* =========================
    HEADER
@@ -877,6 +878,476 @@ body {
     transform: translateX(-3px);
 }
 
+/* =========================
+   MY BOOKINGS UI UPGRADE
+========================= */
+
+.bookings-container {
+    max-width: 1080px;
+}
+
+
+/* PAGE HEADING */
+
+.page-heading {
+    padding: 5px 0 8px;
+}
+
+.page-heading h2 {
+    font-size: clamp(2.2rem, 4vw, 3rem);
+    letter-spacing: -.025em;
+}
+
+.page-heading p {
+    max-width: 560px;
+    font-size: .92rem;
+}
+
+
+/* SUMMARY */
+
+.booking-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+
+    gap: 16px;
+
+    margin-bottom: 32px;
+}
+
+.summary-card {
+    position: relative;
+
+    min-height: 135px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    background: white;
+
+    border: 1px solid var(--border);
+    border-radius: 16px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 12px 30px -24px
+        rgba(13, 58, 55, .5);
+
+    transition:
+        transform .2s,
+        box-shadow .2s;
+}
+
+.summary-card:hover {
+    transform: translateY(-3px);
+
+    box-shadow:
+        0 20px 40px -28px
+        rgba(13, 58, 55, .6);
+}
+
+.summary-label {
+    color: var(--teal-500);
+
+    font-size: .63rem;
+    font-weight: 700;
+    letter-spacing: .13em;
+
+    margin-bottom: 8px;
+}
+
+.summary-card strong {
+    font-family: "Fraunces", serif;
+
+    color: var(--teal-900);
+
+    font-size: 2rem;
+
+    margin-bottom: 3px;
+}
+
+.summary-card .summary-account,
+.summary-card .summary-action {
+    font-size: 1.5rem;
+}
+
+.summary-text {
+    color: var(--muted);
+
+    font-size: .75rem;
+}
+
+.summary-card a {
+    color: var(--teal-700);
+
+    font-size: .75rem;
+    font-weight: 700;
+
+    text-decoration: none;
+
+    margin-top: 5px;
+}
+
+.summary-card a:hover {
+    color: var(--teal-500);
+}
+
+
+/* BOOKING CARD */
+
+.booking-card {
+    border-radius: 22px;
+
+    padding: 32px;
+
+    margin-bottom: 24px;
+
+    box-shadow:
+        0 20px 45px -32px
+        rgba(13, 58, 55, .55);
+}
+
+.booking-card::before {
+    width: 5px;
+}
+
+.booking-card:hover {
+    transform: translateY(-4px);
+
+    box-shadow:
+        0 28px 55px -34px
+        rgba(13, 58, 55, .65);
+}
+
+
+/* BOOKING TITLE */
+
+.booking-number {
+    display: inline-block;
+
+    background: var(--mint-100);
+
+    border-radius: 999px;
+
+    padding: 5px 9px;
+
+    margin-bottom: 10px;
+}
+
+.service-name {
+    font-size: 1.75rem;
+}
+
+
+/* STATUS */
+
+.booking-status,
+.payment-status {
+    padding: 8px 13px;
+
+    border-radius: 999px;
+
+    font-size: .64rem;
+
+    box-shadow:
+        inset 0 0 0 1px
+        rgba(0, 0, 0, .03);
+}
+
+
+/* DETAILS */
+
+.booking-details {
+    gap: 12px;
+}
+
+.detail-box {
+    min-height: 105px;
+
+    border-radius: 14px;
+
+    padding: 16px;
+
+    transition:
+        transform .2s,
+        border-color .2s;
+}
+
+.detail-box:hover {
+    transform: translateY(-2px);
+
+    border-color: #cbded7;
+}
+
+.detail-label {
+    display: flex;
+    align-items: center;
+
+    gap: 6px;
+
+    font-size: .67rem;
+}
+
+.detail-icon {
+    font-size: .9rem;
+}
+
+.detail-value {
+    margin-top: 4px;
+
+    font-size: .84rem;
+}
+
+
+/* PAYMENT */
+
+.payment-box {
+    margin-top: 12px;
+
+    padding: 24px;
+
+    background: #fbfdfc;
+
+    border: 1px solid #e8f0ec;
+    border-radius: 14px;
+}
+
+.payment-box h3 {
+    margin-bottom: 18px;
+
+    font-size: 1.25rem;
+}
+
+.payment-row {
+    padding: 5px 0;
+}
+
+
+/* STATUS MESSAGE */
+
+.status-message {
+    border-radius: 12px;
+
+    padding: 15px 17px;
+}
+
+
+/* ACTION BUTTONS */
+
+.booking-actions {
+    padding-top: 3px;
+
+    gap: 12px;
+}
+
+.booking-actions .btn {
+    min-height: 44px;
+
+    padding: 11px 19px;
+
+    border-radius: 10px;
+}
+
+
+/* NEW BOOKING BUTTON */
+
+.new-booking-btn {
+    min-height: 44px;
+
+    padding: 12px 20px;
+
+    box-shadow:
+        0 12px 25px -18px
+        rgba(13, 58, 55, .8);
+}
+
+
+/* RESPONSIVE */
+
+@media (max-width: 800px) {
+
+    .booking-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .summary-card {
+        min-height: 110px;
+    }
+
+}
+
+@media (max-width: 650px) {
+
+    .booking-card {
+        padding: 24px 20px 24px 24px;
+    }
+
+    .page-heading h2 {
+        font-size: 2.2rem;
+    }
+
+}
+/* =====================================================
+   FINAL AZURA REEF UNDERWATER BACKGROUND
+   One fixed layer — stays visible while scrolling
+===================================================== */
+
+.ocean-background {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    pointer-events: none;
+    z-index: 0;
+
+    background:
+        /* soft water glow */
+        radial-gradient(
+            ellipse at 50% -8%,
+            rgba(255, 255, 255, .95) 0%,
+            rgba(178, 235, 230, .42) 34%,
+            transparent 60%
+        ),
+
+        /* left bubbles */
+        radial-gradient(
+            circle at 5% 17%,
+            rgba(255,255,255,.72) 0 7px,
+            rgba(255,255,255,.18) 8px 17px,
+            transparent 18px
+        ),
+        radial-gradient(
+            circle at 9% 47%,
+            rgba(255,255,255,.58) 0 10px,
+            rgba(255,255,255,.12) 11px 23px,
+            transparent 24px
+        ),
+        radial-gradient(
+            circle at 4% 72%,
+            rgba(255,255,255,.60) 0 5px,
+            transparent 6px
+        ),
+
+        /* right bubbles */
+        radial-gradient(
+            circle at 95% 24%,
+            rgba(255,255,255,.70) 0 8px,
+            rgba(255,255,255,.15) 9px 20px,
+            transparent 21px
+        ),
+        radial-gradient(
+            circle at 97% 56%,
+            rgba(255,255,255,.58) 0 6px,
+            rgba(255,255,255,.10) 7px 15px,
+            transparent 16px
+        ),
+        radial-gradient(
+            circle at 93% 80%,
+            rgba(255,255,255,.50) 0 12px,
+            rgba(255,255,255,.09) 13px 29px,
+            transparent 30px
+        ),
+
+        /* light rays */
+        linear-gradient(
+            105deg,
+            transparent 12%,
+            rgba(255,255,255,.18) 25%,
+            transparent 37%
+        ),
+        linear-gradient(
+            83deg,
+            transparent 38%,
+            rgba(255,255,255,.18) 50%,
+            transparent 60%
+        ),
+
+        /* water */
+        linear-gradient(
+            180deg,
+            #f4fcfa 0%,
+            #e7f6f3 47%,
+            #d8eeeb 100%
+        );
+}
+
+/* Left reef silhouette */
+.ocean-background::before {
+    content: "";
+    position: absolute;
+    left: -90px;
+    bottom: -95px;
+    width: 390px;
+    height: 520px;
+    opacity: .18;
+
+    background:
+        radial-gradient(ellipse at 18% 100%, #0d665f 0 20%, transparent 21%),
+        radial-gradient(ellipse at 43% 100%, #2f8a7d 0 16%, transparent 17%),
+        radial-gradient(ellipse at 68% 100%, #489dd7 0 13%, transparent 14%),
+        radial-gradient(ellipse at 24% 73%, #2f8a7d 0 8%, transparent 9%),
+        radial-gradient(ellipse at 52% 68%, #0d665f 0 7%, transparent 8%),
+        radial-gradient(ellipse at 75% 79%, #489dd7 0 6%, transparent 7%);
+}
+
+/* Right reef silhouette */
+.ocean-background::after {
+    content: "";
+    position: absolute;
+    right: -95px;
+    bottom: -110px;
+    width: 410px;
+    height: 540px;
+    opacity: .16;
+
+    background:
+        radial-gradient(ellipse at 82% 100%, #0d665f 0 21%, transparent 22%),
+        radial-gradient(ellipse at 57% 100%, #2f8a7d 0 16%, transparent 17%),
+        radial-gradient(ellipse at 32% 100%, #489dd7 0 13%, transparent 14%),
+        radial-gradient(ellipse at 84% 75%, #2f8a7d 0 8%, transparent 9%),
+        radial-gradient(ellipse at 51% 68%, #0d665f 0 7%, transparent 8%),
+        radial-gradient(ellipse at 27% 80%, #489dd7 0 6%, transparent 7%);
+}
+
+/* Keep all real page content above the decorative layer */
+.my-bookings-page,
+.bookings-back-bar,
+.bookings-container,
+.account-footer {
+    position: relative;
+    z-index: 2;
+}
+
+/* Soft glass effect so the underwater background still shows through */
+.summary-card,
+.booking-card,
+.empty-state {
+    background: rgba(255, 255, 255, .93);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-color: rgba(255,255,255,.85);
+}
+
+.summary-card {
+    box-shadow: 0 15px 35px rgba(13,58,55,.08);
+}
+
+.booking-card {
+    box-shadow: 0 22px 55px rgba(13,58,55,.11);
+}
+
+@media (max-width: 700px) {
+    .ocean-background::before,
+    .ocean-background::after {
+        width: 240px;
+        height: 360px;
+        opacity: .11;
+    }
+}
+
 </style>
 
 </head>
@@ -884,7 +1355,7 @@ body {
 
 <body>
 
-<div class="my-bookings-page">
+<div class="ocean-background" aria-hidden="true"></div>
 
 <div class="bookings-back-bar">
 
@@ -911,7 +1382,7 @@ body {
     <div class="page-heading-text">
 
         <span class="section-eyebrow">
-            BOOKING HISTORY
+            YOUR AZURA JOURNEY
         </span>
 
         <h2>
@@ -919,12 +1390,12 @@ body {
         </h2>
 
         <p>
-            View the latest status of your
-            reservations and payments.
+            Manage your dive reservations,
+            check payment status,
+            and view your booking history.
         </p>
 
     </div>
-
 
     <a
         href="booking.php"
@@ -932,6 +1403,59 @@ body {
     >
         + New Booking
     </a>
+
+</div>
+
+
+<div class="booking-summary">
+
+    <div class="summary-card">
+
+        <span class="summary-label">
+            TOTAL BOOKINGS
+        </span>
+
+        <strong>
+            <?= $bookings->num_rows ?>
+        </strong>
+
+        <span class="summary-text">
+            Reservations made
+        </span>
+
+    </div>
+
+    <div class="summary-card">
+
+        <span class="summary-label">
+            ACCOUNT
+        </span>
+
+        <strong class="summary-account">
+            Active
+        </strong>
+
+        <span class="summary-text">
+            Customer booking account
+        </span>
+
+    </div>
+
+    <div class="summary-card">
+
+        <span class="summary-label">
+            QUICK ACTION
+        </span>
+
+        <strong class="summary-action">
+            Dive Again
+        </strong>
+
+        <a href="booking.php">
+            Make a new booking →
+        </a>
+
+    </div>
 
 </div>
 
@@ -1141,9 +1665,10 @@ if (
 
 <div class="detail-box">
 
-    <div class="detail-label">
-        Booking Date
-    </div>
+<div class="detail-label">
+    <span class="detail-icon">📅</span>
+    Booking Date
+</div>
 
     <div class="detail-value">
 
@@ -1160,9 +1685,10 @@ if (
 
 <div class="detail-box">
 
-    <div class="detail-label">
-        Booking Time
-    </div>
+<div class="detail-label">
+    <span class="detail-icon">🕒</span>
+    Booking Time
+</div>
 
     <div class="detail-value">
 
@@ -1179,9 +1705,10 @@ if (
 
 <div class="detail-box">
 
-    <div class="detail-label">
-        Guests
-    </div>
+<div class="detail-label">
+    <span class="detail-icon">👥</span>
+    Guests
+</div>
 
     <div class="detail-value">
 
@@ -1198,9 +1725,10 @@ if (
 
 <div class="detail-box">
 
-    <div class="detail-label">
-        Equipment
-    </div>
+<div class="detail-label">
+    <span class="detail-icon">🎒</span>
+    Equipment
+</div>
 
     <div class="detail-value">
 

@@ -149,16 +149,19 @@ body {
 }
 
 .admin-nav {
-    max-width: 1300px;
-    min-height: 76px;
+    width: 100%;
+    max-width: none;
+    min-height: 82px;
 
-    margin: auto;
-    padding: 0 20px;
+    margin: 0;
+    padding: 0 55px;
+    box-sizing: border-box;
 
     display: flex;
-    justify-content: space-between;
     align-items: center;
+    justify-content: space-between;
 
+    position: relative;
     gap: 30px;
 }
 
@@ -180,25 +183,27 @@ body {
 
 .admin-brand-name {
     font-family: "Fraunces", serif;
-    font-size: 1.35rem;
+    font-size: 1.45rem;
     font-weight: 700;
     color: var(--teal-900);
     white-space: nowrap;
 }
 
 .admin-center {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+
     display: flex;
     align-items: center;
-
     gap: 8px;
 
     color: var(--teal-900);
-
-    font-size: .76rem;
+    font-size: 15px;
     font-weight: 700;
-
     letter-spacing: .08em;
     text-transform: uppercase;
+    white-space: nowrap;
 }
 
 .admin-dot {
@@ -220,7 +225,7 @@ body {
 .admin-welcome {
     color: var(--muted);
 
-    font-size: .78rem;
+    font-size: .16px;
 
     white-space: nowrap;
 }
@@ -234,7 +239,7 @@ body {
 
     text-decoration: none;
 
-    font-size: .78rem;
+    font-size: .16px;
     font-weight: 700;
 
     transition: color .2s;
@@ -1015,6 +1020,42 @@ tbody tr:last-child td {
 
 }
 
+/* FIX ADMIN NAVBAR RIGHT SIDE */
+
+.admin-nav {
+    position: relative !important;
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 55px !important;
+    box-sizing: border-box !important;
+}
+
+.admin-links {
+    position: absolute !important;
+    right: 55px !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    gap: 18px !important;
+
+    visibility: visible !important;
+    opacity: 1 !important;
+}
+
+.admin-welcome {
+    display: inline-block !important;
+    font-size: 16px !important;
+}
+
+.admin-links a {
+    display: inline-block !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: var(--teal-900) !important;
+    white-space: nowrap !important;
+}
 </style>
 
 </head>
@@ -1079,6 +1120,9 @@ Hi,
 Manage Schedule
 </a>
 
+<a href="manage_services.php">
+    Manage Services
+</a>
 
 <a href="logout.php">
 Log Out
